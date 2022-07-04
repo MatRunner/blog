@@ -8,7 +8,8 @@ module.exports = {
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      { text: 'GitHub', link: 'https://github.com/MatRunner/blog' }
+      { text: 'GitHub', link: 'https://github.com/MatRunner/blog' },
+      { text: '语雀', link: 'https://www.yuque.com/mouzaixiulianneigongdeyangtongxue' }
     ],
     sidebar: [
       {
