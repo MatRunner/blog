@@ -6,6 +6,7 @@ module.exports = {
   //   ['link',{rel:'icon', href:'./'}]
   // ]
   themeConfig: {
+    lastUpdated: '最近更新于',
     nav: [
       { text: '首页', link: '/' },
       { text: 'GitHub', link: 'https://github.com/MatRunner/blog' },
@@ -37,7 +38,8 @@ module.exports = {
         path: '/fish/introduction',
         collapsable: false,
         children: [
-          { title: '材料那几年', path: '/fish/材料那几年' }
+          { title: '材料那几年', path: '/fish/材料那几年' },
+          { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
         ]
       }
     ]
