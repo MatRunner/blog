@@ -45,5 +45,6 @@ npm这个包可以追溯到js刚要模块化那个时代，简单的说，就是
 虽然经过上面一系列操作，这个包“能跑了”，但是在npm之外还有很多没做的地方。比较重要的就是webpack和babel这两部分工作了。
 ### webpack
 这个npm包需不需要webpack要视情况而定，目前我也没法区分，只能在这里先挖个坑了。
+此外另有衍生问题:point_right:[怎么使用webpack打出一个可以导出的包？](/tech/webpack_export.html)
 ### babel
 一般都需要使用babel对包的语法进行降级，我使用了babel-cli将包中功能部分都转译在了dist文件中，在publish阶段只把转译后的文件上传了。
