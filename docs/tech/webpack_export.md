@@ -41,7 +41,7 @@ commonjs下模块使用的是`module.exports`导出的，webpack配置中library
 2. 无name值时，文档给出了warning
 > Note that not setting a output.library.name will cause all properties returned by the entry point to be assigned to the given object; there are no checks against existing property names.
 
-这真是让我好一阵吐槽，这个given object是啥也不说清楚。直接看打包文件：
+这真是让我好一阵吐槽，这个given object是啥也不说清楚。直接看打包文件关键部分：
 ```
 /******/ 	var __webpack_exports__ = {};
 /******/ 	__webpack_modules__["./src/index.js"](0, __webpack_exports__, __webpack_require__);
@@ -75,7 +75,23 @@ _bar.bar;
 ```
 默认导出做了一层判断，如果这个obj原本是一个esModule的模块，那它肯定有default值，否则它是一个cjs模块，它自己作为默认导出。明白了语法转化规则，原因就是入口文件没有设置默认导出，所以默认导入得到的就是undefined了，经过验证确实如此。
 3. 结论
-有name时，是将name作为exports上的属性导出的，webpack的一通操作下，`__esModule`并不是TRUE了（虽然这个源码我没看明白！），所以exports自身作为default值导出。
-无name时，webpack遍历了导出对象来挂载到exports上，特别的default也是一个对象名，所以默认导入是undefined。
+有name时，是将name作为exports上的属性导出的，webpack的一通操作下，`__esModule`并不是TRUE了（虽然这个源码我没看明白！），所以exports自身作为default值导出, 使用时默认导入得到的是一个包含有name属性的对象。
+无name时，webpack遍历了导出对象来挂载到exports上，特别的default也是一个对象名，所以默认导入和具名导入有没有东西完全取决于打包的入口文件是怎么导出的。
 ### module
-未完待续
+如果直接把type类型从`commonjs`改为`module`，则会得到一个error:
+```
+Error: library type "module" is only allowed when 'experiments.outputModule' is enabled
+```
+文档中也说明了该特性还在试验中，需要将试验配置开启，注意output.name属性也需要**unset**。可以浅看一下这种type下打包出的是什么东西。
+入口文件如下：
+```
+export const obj1 = { a: 1 }
+export const obj2 = { b: 2 }
+export default { c: 3 }
+```
+打包结果关键部分：
+```
+/******/ export { __webpack_exports__default as default, __webpack_exports__obj1 as obj1, __webpack_exports__obj2 as obj2 };
+```
+看样子就是正常的es Module下的导出，打包出的结果可以在项目中以正常的es Module语法引入。
+### commonjs2
