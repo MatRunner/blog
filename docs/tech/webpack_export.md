@@ -94,4 +94,6 @@ export default { c: 3 }
 /******/ export { __webpack_exports__default as default, __webpack_exports__obj1 as obj1, __webpack_exports__obj2 as obj2 };
 ```
 看样子就是正常的es Module下的导出，打包出的结果可以在项目中以正常的es Module语法引入。
-### commonjs2
+## 总结
+1. 在webpack中配置`output.library`才能打出一个有导出的包。
+2. 一般配置`output.library.type`为`commonjs`，但是注意`library.name`的有无影响最终的导出结果。
