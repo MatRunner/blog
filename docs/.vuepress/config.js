@@ -31,7 +31,8 @@ module.exports = {
         collapsable: false,
         children: [
           { title: '如何发布一个npm包', path: '/tech/npm' },
-          { title: '使用webpack打出一个有导出的包', path: '/tech/webpack_export' }
+          { title: '使用webpack打出一个有导出的包', path: '/tech/webpack_export' },
+          { title: '竟然被const坑了一把', path: '/tech/about_const' }
         ]
       },
       {
