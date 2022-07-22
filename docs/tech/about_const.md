@@ -19,4 +19,9 @@ const Component=({url,list})=>{
 
 es6新增的`let`和`const`声明，区别于`var`，`var`是有*变量提升*这个东西的，但是这俩声明是没有的。我理解这点，但是对这俩声明的具体细节还不够，并想当然的认为let和const创建变量是在赋值号右侧计算完毕后。直接去看一下ECMAScript doc。
 > NOTE:
-let and const declarations define variables that are scoped to the running execution context’s LexicalEnvironment. The variables are created when their containing Lexical Environment is instantiated but may not be accessed in any way until the variable’s LexicalBinding is evaluated. A variable defined by a LexicalBinding with an Initializer is assigned the value of its Initializer’s AssignmentExpression when the LexicalBinding is evaluated, not when the variable is created. If a LexicalBinding in a let declaration does not have an Initializer the variable is assigned the value undefined when the LexicalBinding is evaluated.
+let and const declarations define variables that are scoped to the running execution context’s **LexicalEnvironment**. The variables **are created when their containing Lexical Environment is instantiated** but may not be accessed in any way until the variable’s LexicalBinding is evaluated. A variable defined by a LexicalBinding with an Initializer is **assigned the value of its Initializer’s AssignmentExpression when the LexicalBinding is evaluated**, **not when the variable is created**. If a LexicalBinding in a let declaration does not have an Initializer the variable is assigned the value undefined when the LexicalBinding is evaluated.
+
+标准的意思大概是，变量创建的时刻是在词法域实例化后；但是赋值时刻是在词法绑定并赋值运算后。也就是在赋值运算前，变量是不能被访问的，访问就会报错。且如果let声明的变量没有初始化值，初始化值就为undefined，但是const声明必须要有初始化值，否则也会报错。
+另外，关于**变量提升**这个问题，js中let，const，var三种声明都是有变量提升的作用的，只不过let和const多了一个叫**暂时性死区（TDZ）**的时期，也就遮蔽了变量提升这个效果。
+
+而为什么我写了这段错误的代码却没有报错，原因也找到了。babel在做语法降级的时候将const和let全部编译成了var。由于公司的项目比较老了，甚至还有babel-preset-es2015这种东西，所以我直接在build出的vender中检索了一下，确实只有var。至此，问题也算是都解决了，感慨：学无止境啊！
