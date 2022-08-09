@@ -42,7 +42,7 @@ module.exports = {
         collapsable: false,
         children: [
           { title: '材料那几年', path: '/fish/材料那几年' },
-          { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
+          // { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
         ]
       },
       {
