@@ -1,7 +1,7 @@
 module.exports = {
   base: '/blog/',
-  title: '加班不秃，熬夜会秃',
-  description: '博客；前端学习；生活记录',
+  title: '前端学习与摸鱼艺术',
+  description: 'blog；frontend developer；',
   // head:[
   //   ['link',{rel:'icon', href:'./'}]
   // ]
