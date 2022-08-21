@@ -34,6 +34,7 @@ module.exports = {
           { title: '使用webpack打出一个有导出的包', path: '/tech/webpack_export' },
           { title: '竟然被const坑了一把', path: '/tech/about_const' },
           { title: '集成sso的前端项目在开发阶段绕过登陆', path: '/tech/sso' },
+          { title: '面向业务的Markdown解析脚本', path: '/tech/md_parser' },
         ]
       },
       {

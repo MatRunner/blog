@@ -10,7 +10,7 @@
 
 是一个指定导出模式的字段。可取值很多:point_right:[output.library.type](https://webpack.js.org/configuration/output/#outputlibrarytype)
 这里只列出几个测试的type值。webpack配置如下：
-```
+```js
 // webpack.config.js
 library:{
   name:myComponent,
@@ -20,7 +20,7 @@ library:{
 ### commonjs
 此时又到了复习commonjs规范的时候了!
 > module 代表当前模块，是一个对象，保存了当前模块的信息。exports 是 module 上的一个属性，保存了当前模块要导出的接口或者变量，使用 require 加载的某个模块获取到的值就是那个模块使用 exports 导出的值。有一点要尤其注意，exports 是模块内的私有局部变量，它只是指向了 module.exports，所以直接对 exports 赋值是无效的，这样只是让 exports 不再指向 module.exports了而已。
-```
+```js
 // 入口index.js
 export const obj = {
   a: 1
@@ -28,7 +28,7 @@ export const obj = {
 ```
 在webpack配置中，有没有library.name属性打包的文件有所不同。
 1. 有name值时。
-```
+```js
 /******/ 	var __webpack_exports__ = {};
 /******/ 	__webpack_modules__["./src/index.js"](0, __webpack_exports__, __webpack_require__);
 /******/ 	exports.myComponent = __webpack_exports__;
@@ -42,7 +42,7 @@ commonjs下模块使用的是`module.exports`导出的，webpack配置中library
 > Note that not setting a output.library.name will cause all properties returned by the entry point to be assigned to the given object; there are no checks against existing property names.
 
 这真是让我好一阵吐槽，这个given object是啥也不说清楚。直接看打包文件关键部分：
-```
+```js
 /******/ 	var __webpack_exports__ = {};
 /******/ 	__webpack_modules__["./src/index.js"](0, __webpack_exports__, __webpack_require__);
 /******/ 	var __webpack_export_target__ = exports;
@@ -52,7 +52,7 @@ commonjs下模块使用的是`module.exports`导出的，webpack配置中library
 是的，还多了几行，看样子是把入口文件的导出一个个挂在exports上，所以直接使用具名导入`import {obj1,obj2} from the-package`就能拿到导出的东西，比上面还少了一步。但是此时诡异的事情出现了，使用默认导入反而只导入了一个`undefined`，这和预计的应该导出**一个包含所有导出内容的对象**不符啊。
 直接降级语法，使用`require('the-package')`导入，发现得到的确实是挂载所有导出内容的对象，看来是babel在转化cjs和mjs语法时出了问题，但是为啥有name没问题，没name反而有问题了？
 定位到`@babel/preset-env`这个plugin，它实际上应该是`@babel/plugin-transform-modules-commonjs`在发挥作用，这里搬运一下官方的例子：
-```
+```js
 import foo from "foo";
 import { bar } from "bar";
 foo;
@@ -84,13 +84,13 @@ Error: library type "module" is only allowed when 'experiments.outputModule' is 
 ```
 文档中也说明了该特性还在试验中，需要将试验配置开启，注意output.name属性也需要**unset**。可以浅看一下这种type下打包出的是什么东西。
 入口文件如下：
-```
+```js
 export const obj1 = { a: 1 }
 export const obj2 = { b: 2 }
 export default { c: 3 }
 ```
 打包结果关键部分：
-```
+```js
 /******/ export { __webpack_exports__default as default, __webpack_exports__obj1 as obj1, __webpack_exports__obj2 as obj2 };
 ```
 看样子就是正常的es Module下的导出，打包出的结果可以在项目中以正常的es Module语法引入。

@@ -11,7 +11,7 @@
 组里大姐大在webpackDevServer.config.js中请求了登录接口，（登录信息是写死的），获得token后，似乎是用了http-proxy-middleware，将token塞进了response的cookie里，这样在项目启动后，所有请求自动就带上了token，开发就不必关心登录的问题了（实际这个配置极其繁琐，而且没有注释，对小白十分不友好）。流程上看着确实没有问题，依照同样的思路，在vite复现一下，我的这个项目应该就好了。
 ## 实操问题
 根据上述思路，vite也应该有相关的配置。我的同事使用了plugin的方式来实现给请求加上token，(配置说明)[https://vitejs.dev/guide/api-plugin.html#vite-specific-hooks]依旧对小白十分不友好。大概写法如下：
-```
+```js
 const myPlugin = () => ({
   name: 'configure-server',
   async configureServer(server) {

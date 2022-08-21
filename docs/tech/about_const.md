@@ -2,7 +2,7 @@
 ## 起因
 在某个crazy Thursday，我买了M记的穷人套餐回到住处，然后还在加班的同事发现我代码有问题并截图给我，代码大致如下：
 
-```
+```js
 const Component=({url,list})=>{
   const fetchData=async ()=>{
     const url=url||list?.[0]
