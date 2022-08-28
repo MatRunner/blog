@@ -1,10 +1,10 @@
 module.exports = {
-  base: '/',
+  base: '/blog/',
   title: '前端学习与摸鱼艺术',
   description: 'blog；frontend developer；',
-  // head:[
-  //   ['link',{rel:'icon', href:'./'}]
-  // ]
+  head: [
+    ['link', { rel: 'icon', href: '/blog/fav.png' }]
+  ],
   themeConfig: {
     lastUpdated: '最近更新于',
     nav: [
