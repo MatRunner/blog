@@ -1,9 +1,9 @@
 module.exports = {
-  base: '/blog/',
+  base: '/',
   title: '前端学习与摸鱼艺术',
   description: 'blog；frontend developer；',
   head: [
-    ['link', { rel: 'icon', href: '/blog/fav.png' }]
+    ['link', { rel: 'icon', href: '/fav.png' }]
   ],
   themeConfig: {
     lastUpdated: '最近更新于',
