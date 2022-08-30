@@ -35,7 +35,16 @@ module.exports = {
           { title: '竟然被const坑了一把', path: '/tech/about_const' },
           { title: '集成sso的前端项目在开发阶段绕过登陆', path: '/tech/sso' },
           { title: '面向业务的Markdown解析脚本', path: '/tech/md_parser' },
-          { title: '浅用ResizeObserver API', path: '/tech/resizeObserver' },
+        ]
+      },
+      {
+        title: '与产品斗智',
+        path: '/work/introduction',
+        collapsable: false,
+        children: [
+          { title: '浅用ResizeObserver API', path: '/work/resizeObserver' },
+          { title: '如何记录用户最后访问的页面', path: '/work/memorizeParam' },
+          { title: '工作流逻辑处理', path: '/work/order' },
         ]
       },
       {
