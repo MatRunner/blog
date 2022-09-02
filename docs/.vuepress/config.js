@@ -44,7 +44,6 @@ module.exports = {
         children: [
           { title: '浅用ResizeObserver API', path: '/work/resizeObserver' },
           { title: '如何记录用户最后访问的页面', path: '/work/memorizeParam' },
-          { title: '工作流逻辑处理', path: '/work/order' },
         ]
       },
       {
@@ -54,7 +53,7 @@ module.exports = {
         children: [
           { title: '材料那几年', path: '/fish/材料那几年' },
           { title: '如何管理好自己的项目排期', path: '/fish/十分重要的项目排期' },
-          // { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
+          { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
         ]
       },
       {
@@ -62,7 +61,8 @@ module.exports = {
         path: '/design-pattern/introduction',
         collapsable: false,
         children: [
-          { title: '单例模式', path: '/design-pattern/singleton' }
+          { title: '单例模式', path: '/design-pattern/singleton' },
+          { title: '责任链模式', path: '/design-pattern/order' },
         ]
       }
     ]
