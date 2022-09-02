@@ -1,5 +1,7 @@
-# DOM ResizeObserver API
-## 背景
+# DOM *Observer API
+JavaScript中有一个observer系列的api，分别为IntersectionObserver，ResizeObserver, MutationObserver，十分的有意思。
+## ResizeObserver
+### 背景
 又是一个周六，由于组内一小姐姐离职，我要去接受她的项目，加上产品直接定了版本发布日。我又“自愿”加班去了。
 
 加班不可避免，只能思考如何让加班变得有效。
@@ -8,7 +10,7 @@
 
 ![floatNav](./image/floatNav.gif)
 
-## 思路
+### 思路
 能用CSS解决的先用CSS解决。分析需求可知：
 1. 距离视窗底部固定距离，显然是`position: fixed;`;
 2. 横向的行为类似于`position: sticky`，但是仔细一想，是和需求1冲突的。
@@ -17,10 +19,10 @@
 
 方案：纵向位置使用css的fixed定位实现，横向位置使用js来控制。
 
-## 实施
+### 实施
 固钉的位置与页面距离视窗右侧的距离有关，细分下，需要实现对window宽度变化的监听，并实时计算页面主体距离右侧视窗的距离。
 
-### 事件监听
+#### 事件监听
 监听window的宽度变化可以使用(前端程序员)都知道的`addEventListener('resize',callbakc)`方法，需要注意的是：
 1. resize事件只能监听window；
 2. 该事件会高频触发，基本都需要做节流。
@@ -52,7 +54,7 @@ window.addEventListener("optimizedResize", function() {
     console.log("Resource conscious resize callback!");
 });
 ```
-### ResizeObserver
+#### ResizeObserver
 事件监听通常和节流绑定，显得上面的实现内聚性少了那么点意味。DOM还有一个*Observer系列的api，ResizeObserver就是其中一个。
 
 > ResizeObserver 接口可以监听到 Element 的内容区域或 SVGElement的边界框改变。内容区域则需要减去内边距 padding。
@@ -80,7 +82,7 @@ export const useResizeObserver = (target, callback) => {
 }
 ```
 之后将监听document.body的回调作为callback传入即可。
-### 右边距计算
+#### 右边距计算
 实现了对window的监听后，需要得到页面主体到视窗右侧的距离，这里使用`element.getBoundingClientRect()`，但是这个api所有的属性都是相对于视窗左上的，还需要使用`window.innerWidth`减一下才能得到距离右边的距离。
 
 至此，功能就完成了。但是总感觉功能实现的不是很漂亮。

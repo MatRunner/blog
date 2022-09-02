@@ -42,8 +42,7 @@ module.exports = {
         path: '/work/introduction',
         collapsable: false,
         children: [
-          { title: '浅用ResizeObserver API', path: '/work/resizeObserver' },
-          { title: '如何记录用户最后访问的页面', path: '/work/memorizeParam' },
+          { title: '*Observer API系列', path: '/work/observer' },
         ]
       },
       {
