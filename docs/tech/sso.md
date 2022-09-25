@@ -10,7 +10,7 @@
 
 组里大姐大在webpackDevServer.config.js中请求了登录接口，（登录信息是写死的），获得token后，似乎是用了http-proxy-middleware，将token塞进了response的cookie里，这样在项目启动后，所有请求自动就带上了token，开发就不必关心登录的问题了（实际这个配置极其繁琐，而且没有注释，对小白十分不友好）。流程上看着确实没有问题，依照同样的思路，在vite复现一下，我的这个项目应该就好了。
 ## 实操问题
-根据上述思路，vite也应该有相关的配置。我的同事使用了plugin的方式来实现给请求加上token，(配置说明)[https://vitejs.dev/guide/api-plugin.html#vite-specific-hooks]依旧对小白十分不友好。大概写法如下：
+根据上述思路，vite也应该有相关的配置。我的同事使用了plugin的方式来实现给请求加上token，[配置说明](https://vitejs.dev/guide/api-plugin.html#vite-specific-hooks)依旧对小白十分不友好。大概写法如下：
 ```js
 const myPlugin = () => ({
   name: 'configure-server',
@@ -24,7 +24,7 @@ const myPlugin = () => ({
 
 ```
 这种自定义plugin的方式看着是给请求加上了token，结果项目还是没有跑起来，后端接口并没有检测到带上了token，我在本地调试时发现，plugin中发出和接收的请求中确实带上了token，之后经过漫长的检索，
-(感谢大佬)[https://liyangzone.com/article/2022-05-25-advanced-proxy-config/]给出了另一个配置。这个配置是对proxy的请求进行了拦截修改，而本地项目中的接口确实都是通过proxy进行了反向代理，这种配置从逻辑上更加说得通，实际也确实实现了本地项目启动后自动获取并给后续经过proxy的请求都带上了token。
+[感谢大佬](https://liyangzone.com/article/2022-05-25-advanced-proxy-config/)给出了另一个配置。这个配置是对proxy的请求进行了拦截修改，而本地项目中的接口确实都是通过proxy进行了反向代理，这种配置从逻辑上更加说得通，实际也确实实现了本地项目启动后自动获取并给后续经过proxy的请求都带上了token。
 
 最后虽然解决了问题，但是其中还有很多盲点，通过proxy的请求不会经过plugin处理吗，为何token没有加上去；项目和本地vite server到底是怎么个通信模式？这些问题已经不是一时半会能解决的了。
 
