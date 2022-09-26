@@ -47,6 +47,15 @@ module.exports = {
         ]
       },
       {
+        title: '设计模式思考与实践',
+        path: '/design-pattern/introduction',
+        collapsable: false,
+        children: [
+          { title: '单例模式', path: '/design-pattern/singleton' },
+          { title: '责任链模式', path: '/design-pattern/order' },
+        ]
+      },
+      {
         title: '摸鱼杂谈',
         path: '/fish/introduction',
         collapsable: false,
@@ -56,15 +65,6 @@ module.exports = {
           { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
         ]
       },
-      {
-        title: '设计模式思考与实践',
-        path: '/design-pattern/introduction',
-        collapsable: false,
-        children: [
-          { title: '单例模式', path: '/design-pattern/singleton' },
-          { title: '责任链模式', path: '/design-pattern/order' },
-        ]
-      }
     ]
   },
   // configureWebpack: {
