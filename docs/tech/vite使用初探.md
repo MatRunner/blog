@@ -84,3 +84,13 @@ export default defineConfig({
   },
 ```
 比较坑的是，vite的build选项中还有terserOption，一些熟悉terser的可能就直接用terser去除console了，但是不将build.minify设置为terser，这个terserOption就不会生效。而万一设置了，minify就会使用terser，esbuild的优势就用不上了。这文档多少有点坑。
+## flow 部署
+当项目进入到灰度阶段时，需要做一些持续集成的工作，就是阿里云的flow自动构建。由于对部署工作的不熟悉，这部分也踩了一些坑。
+### 路由
+公司的多个项目用的是一个域名，不同业务线划分了不同的根路由。vite中就是设置base字段。另外项目中有路由跳转的还需要检查是否携带了项目根路由。
+### nginx代理前后端两个项目的问题
+在本地开发阶段，使用vite的配置对接口请求进行了proxy，这一般要求接口的请求有一个统一的根路径来对接口请求进行代理。如`/api/`。这个阶段，vite服务器起了代理请求的作用。
+
+而项目运行在服务端时，请求是由运维在nginx进行配置的。运维将接口的请求配置在了项目路由下，如项目根路径为`/work`,对`/work/api`开头的请求认为是接口请求，由nginx进行代理。也可以使用两个根路径`/work`为项目路径，`/api`为接口路径。
+
+遇到的问题为，最开始接口location写在项目根路径下时，特定页面的跳转请求走了接口的代理。最后让运维改了半天nginx，最后还是将两个都放在了根路径下。尴尬的是，后来定位问题是在本地开发环境中，vite.config文件的base要求`vite base option should end with a slash`，因此直接用url：`localhost:3000/work`访问会直接报错，必须要写成`localhost:3000/work/`才能走项目内路由，而在线上是没有这个问题的，nginx会给没有加slash的`/work`末尾加上`/`。猜想是因为vite.config中base配置的是带/后缀的路径，因此本地开发必须把路径写全才能正确访问。
