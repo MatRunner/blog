@@ -10,7 +10,8 @@ module.exports = {
     nav: [
       { text: '首页', link: '/' },
       { text: 'GitHub', link: 'https://github.com/MatRunner/blog' },
-      { text: '语雀', link: 'https://www.yuque.com/mouzaixiulianneigongdeyangtongxue' }
+      { text: '语雀', link: 'https://www.yuque.com/mouzaixiulianneigongdeyangtongxue' },
+      { text: '100天play', link: 'https://100.codeyi.top/' },
     ],
     sidebar: [
       {
