@@ -11,7 +11,7 @@ module.exports = {
       { text: '首页', link: '/' },
       { text: 'GitHub', link: 'https://github.com/MatRunner/blog' },
       { text: '语雀', link: 'https://www.yuque.com/mouzaixiulianneigongdeyangtongxue' },
-      { text: '100天play', link: 'https://100.codeyi.top/' },
+      { text: '100天', link: 'https://100.codeyi.top/' },
     ],
     sidebar: [
       {
@@ -64,6 +64,7 @@ module.exports = {
           { title: '材料那几年', path: '/fish/材料那几年' },
           { title: '如何管理好自己的项目排期', path: '/fish/十分重要的项目排期' },
           { title: '我对前端岗位的思考', path: '/fish/我对前端岗位的思考' },
+          { title: '如何进行项目复盘——前端视角', path: '/fish/如何项目复盘' },
         ]
       },
     ]
