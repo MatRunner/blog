@@ -36,7 +36,8 @@ module.exports = {
           { title: '竟然被const坑了一把', path: '/tech/about_const' },
           { title: '集成sso的前端项目在开发阶段绕过登陆', path: '/tech/sso' },
           { title: '面向业务的Markdown解析脚本', path: '/tech/md_parser' },
-          { title: 'Vite使用初探', path: '/tech/vite使用初探' }
+          { title: 'Vite使用初探', path: '/tech/vite使用初探' },
+          { title: 'Vite打包优化初步实践', path: '/tech/vite打包优化' },
         ]
       },
       {
