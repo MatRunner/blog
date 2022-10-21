@@ -24,4 +24,5 @@
 #### vite-plugin-chunk-split
 一个vite拆包[插件](https://github.com/sanyuan0704/vite-plugin-chunk-split#readme), npm下载量虽不多，但是涨势迅猛。这里使用了该插件对较大的依赖单独拆除一个chunk。
 
-这样，入口的js文件的体积减小到了700kb，“减负”不少。
+这样，入口的js文件的体积减小到了700kb，“减负”不少。而拆出去的chunk则以link的形式插入到了html的head内。
+#### link type: modulepreload
