@@ -26,3 +26,17 @@
 
 这样，入口的js文件的体积减小到了700kb，“减负”不少。而拆出去的chunk则以link的形式插入到了html的head内。
 #### link type: modulepreload
+将node_modules拆成了几个包，产物中多了不少chunk，并且以link的形式插入到了html中。
+![chunk](./image/vite_build.png)
+
+然后我就发现，这个link是什么东西，这是什么属性！查找一下mdn，介绍为：预先加载module script（指支持esModule的模块）的一种声明方式。由于这是一种实验特性，介绍相当简陋。进一步去html标准里查找，大概是说可以预先加载资源作为一种优化方式。
+> Additionally, implementations can take advantage of the fact that module scripts declare their dependencies in order to fetch the specified module's dependency as well. This is intended as an optimization opportunity, since the user agent knows that, in all likelihood, those dependencies will also be needed later. 
+
+之后需要思考的一个问题是，link内预加载的资源是否阻塞了页面的渲染？如react这种依赖也是被单独拆分出去了，那么页面的渲染必然是发生在获取依赖之后的。如果确实是这样，那么随后产生了一个问题：减少preload的资源能否加快首屏加载？
+
+*Chrome的lighthouse功能优化建议确实有 reduce unused js的建议，就很迷惑，虽然是preload请求*
+
+网上搜了一圈，没找到有这方面的讨论。只能先给出一个暂时的自我理解的答案：
+
+- 减少preload能不能加快首屏关键还是看preload内的资源是否和首屏相关；
+- preload应该是页面加载时的一个并发请求，code-split的优化点在于将单个大体积的请求拆分为多个并发的小体积请求来减少首屏加载速度。
