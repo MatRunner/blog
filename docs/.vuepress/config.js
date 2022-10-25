@@ -39,6 +39,7 @@ module.exports = {
           { title: 'Vite使用初探', path: '/tech/vite使用初探' },
           { title: 'Vite打包优化初步实践', path: '/tech/vite打包优化' },
           { title: 'TailwindCSS使用体验', path: '/tech/tailwindcss' },
+          { title: '学习monorepo', path: '/tech/monorepo' },
         ]
       },
       {
