@@ -41,6 +41,7 @@ module.exports = {
           { title: 'TailwindCSS使用体验', path: '/tech/tailwindcss' },
           { title: '学习monorepo', path: '/tech/monorepo' },
           { title: '前端工程化——碎片集', path: '/tech/工程化' },
+          // { title: '浅学lambda演算', path: '/tech/lambda' },
         ]
       },
       {
