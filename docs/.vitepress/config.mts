@@ -1,14 +1,14 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "SpaceY",
+  title: "Yang's Blog",
   description: "Personal Technical Research Plot",
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      { text: 'AI', link: '/AI/llm推理时的内存占用计算' },
-      { text: '研究', link: '/research/rob' },
-      { text: '工作', link: '/works/spec2026-stockfish' }
+      { text: '技术研究', link: '/research/rob' },
+      { text: '工作杂谈', link: '/works/spec2026-stockfish' },
+      { text: 'AI', link: '/AI/llm推理时的内存占用计算' }
     ],
 
     sidebar: {
@@ -26,7 +26,7 @@ export default defineConfig({
       ],
       '/research/': [
         {
-          text: '研究笔记',
+          text: '技术研究',
           items: [
             { text: 'ROB', link: '/research/rob' },
             { text: 'GEMM', link: '/research/gemm' },
@@ -37,7 +37,7 @@ export default defineConfig({
       ],
       '/works/': [
         {
-          text: '工作内容',
+          text: '工作杂谈',
           items: [
             { text: 'SPEC2026 - Stockfish', link: '/works/spec2026-stockfish' },
             { text: 'SPEC2026 - Zstd', link: '/works/spec2026-zstd' },
@@ -49,7 +49,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      // { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
     ]
   }
 })

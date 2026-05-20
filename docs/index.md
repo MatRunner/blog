@@ -1,25 +1,29 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
-  name: "SpaceY"
-  text: "Personal Technical Research Plot"
-  tagline: My great project tagline
+  name: "Yang's Blog"
+  text: ""
+  tagline: 体系结构、软硬结合、性能调优探索与实践
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: 技术研究
+      link: /research/rob
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: 工作杂谈
+      link: /works/spec2026-stockfish
+    - theme: alt
+      text: AI 学习
+      link: /AI/tokenizer
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 💻
+    title: 体系结构
+    details: Cache、CPU 微架构、性能调优等底层技术
+  - icon: 📊
+    title: Benchmark
+    details: SPEC、CPUBench
+  - icon: 🤖
+    title: AI
+    details: 也许是第六次工业革命
 ---
-

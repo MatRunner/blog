@@ -25,7 +25,7 @@
 
 ## 动态库内存映射
 
-利用/proc/<pid>/maps文件，可以查看进程的内存映射关系，查看libopenfoam.so库的地址。
+利用/proc/pid/maps文件，可以查看进程的内存映射关系，查看libopenfoam.so库的地址。
 
 ```bash
 cat /proc/<pid>/maps
