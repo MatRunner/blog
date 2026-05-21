@@ -1,6 +1,4 @@
-# SpaceY - Personal Technical Blog
-
-个人技术博客，记录 CPU 架构、AI/LLM、性能调优的探索与实践。
+# 基于vitepress搭建个人技术博客
 
 ## 技术栈
 
@@ -28,6 +26,8 @@ npm run docs:dev
 ```bash
 npm run docs:build
 ```
+
+或直接在服务端运行`deploy.sh`脚本
 
 ### 预览构建结果
 
