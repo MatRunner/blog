@@ -1,0 +1,230 @@
+{
+  "title": "华为od优化版",
+  "basic": {
+    "name": "杨逸",
+    "title": "benchmark/软硬结合/性能",
+    "employementStatus": "在职",
+    "email": "iyoung2018@126.com",
+    "phone": "17320149294",
+    "location": "杭州市滨江区",
+    "birthDate": "1995/09",
+    "fieldOrder": [
+      {
+        "id": "1",
+        "key": "name",
+        "label": "姓名",
+        "type": "text",
+        "visible": true
+      },
+      {
+        "id": "2",
+        "key": "title",
+        "label": "职位",
+        "type": "text",
+        "visible": true
+      },
+      {
+        "id": "3",
+        "key": "employementStatus",
+        "label": "状态",
+        "type": "text",
+        "visible": true
+      },
+      {
+        "id": "4",
+        "key": "birthDate",
+        "label": "生日",
+        "type": "date",
+        "visible": true
+      },
+      {
+        "id": "5",
+        "key": "email",
+        "label": "邮箱",
+        "type": "text",
+        "visible": true
+      },
+      {
+        "id": "6",
+        "key": "phone",
+        "label": "电话",
+        "type": "text",
+        "visible": true
+      },
+      {
+        "id": "7",
+        "key": "location",
+        "label": "所在地",
+        "type": "text",
+        "visible": true
+      }
+    ],
+    "icons": {
+      "email": "Mail",
+      "phone": "Phone",
+      "birthDate": "CalendarRange",
+      "employementStatus": "Briefcase",
+      "location": "MapPin"
+    },
+    "photoConfig": {
+      "width": 90,
+      "height": 120,
+      "aspectRatio": "1:1",
+      "borderRadius": "none",
+      "customBorderRadius": 0,
+      "visible": false
+    },
+    "customFields": [],
+    "photo": "/avatar.png",
+    "githubKey": "",
+    "githubUseName": "",
+    "githubContributionsVisible": false,
+    "layout": "left"
+  },
+  "education": [
+    {
+      "id": "1",
+      "school": "中国科学院大学",
+      "major": "材料工程",
+      "degree": "硕士",
+      "startDate": "2018/08",
+      "endDate": "2021/06",
+      "visible": true,
+      "gpa": "",
+      "description": "<p></p>"
+    },
+    {
+      "id": "fe5a5f1f-2d0c-4d2d-a1fe-895298b2c340",
+      "school": "郑州大学",
+      "major": "材料科学与工程",
+      "degree": "本科",
+      "startDate": "2014/08",
+      "endDate": "2018/06",
+      "description": "",
+      "visible": true
+    }
+  ],
+  "skillContent": "<ul><li><p>熟悉Linux性能指标及分析工具，熟悉perf的使用，CPU微架构及topdown分析法，workload宏微观特征分析及瓶颈定位，可独立定位性能问题</p></li><li><p>具备benchmark开发经验，熟悉基础性能benchmark工具的使用</p></li></ul>",
+  "selfEvaluationContent": "",
+  "experience": [
+    {
+      "id": "1",
+      "company": "华为od项目/鲲鹏集成验证",
+      "position": "",
+      "date": "2022/11 - 至今",
+      "visible": true,
+      "details": "<ul><li><p>通用计算CPU性能评测基准工具CPUBench owner</p></li><li><p>参与SPECCPU性能测试与特征分析</p></li><li><p>集群基准工具ClusterBench开发，涉及负载选型、特征刻画、框架功能、负载设计</p></li><li><p>鲲鹏产品POC/PAE项目的技术支撑，主要为性能问题的分析定位与优化方案设计与验证</p></li></ul>"
+    },
+    {
+      "id": "4b2c4ab5-7ae5-4cc6-994c-d06e3385d3e5",
+      "company": "杭州知衣科技有限公司",
+      "position": "",
+      "date": "2021.12-2022.11",
+      "details": "<p>数据产品线的开发</p>",
+      "visible": true
+    }
+  ],
+  "draggingProjectId": null,
+  "projects": [
+    {
+      "id": "p1",
+      "name": "CPUBench",
+      "role": "owner",
+      "date": "2023/07 - 至今",
+      "description": "<p>项目背景：美国实体清单影响下，国内厂商受到SPEC准入限制，但SPEC已成为事实标准，此背景下由电子四院推动建立的自主可控的CPU性能评测工具，用于通用计算场景下CPU、编译器和内存子系统的性能评测</p><ul><li><p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://codeyi.top/works/ASLR%E5%BC%80%E5%90%AF%E5%AF%BC%E8%87%B4openfoam%E7%9A%84%E6%80%A7%E8%83%BD%E6%B3%A2%E5%8A%A8%E9%97%AE%E9%A2%98.html\"><strong>ARM 架构下 openfoam 性能波动问题</strong></a></p><ul><li><p>问题背景：在 ARM 架构服务器进行性能基准测试（Benchmark）时，发现 OpenFOAM 进程间完成时间差异高达 100%（相差一倍），性能出现严重随机性波动。</p></li><li><p>分析排查：</p><ul><li><p>热点分析：微架构特征对比发现异常进程的<strong>I-cache miss</strong>飙升导致<strong>Frontend Bound高达近 50%。</strong></p></li><li><p>根因推导：通过分析 <code>/proc/pid/maps</code> 虚拟地址映射，推导出在 ARM 架构（4K 页，64KB L1 4-Way，每 Way 16KB）下，ASLR开启导致虚拟地址的 Index 发生随机化。</p></li><li><p>微观解释：同物理核下SMT开启下，因 Index 随机化导致两个SMT核心竞争L1 cache，触发硬件别名检测与 Invalid 后 flush，造成严重的流水线停顿。</p></li></ul></li><li><p>解决方案与结果：验证了切换 64K 内存页、<code>setarch -R</code><strong> </strong>或关闭 ASLR 、调整 SMT 策略3 种规避方案，彻底消除了 100% 的性能波动，使基准测试分数达到预期。</p></li></ul></li><li><p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://codeyi.top/works/ALSR%E5%BC%80%E5%90%AF%E5%AF%BC%E8%87%B4rapidjson%E6%80%A7%E8%83%BD%E6%B3%A2%E5%8A%A8%E9%97%AE%E9%A2%98.html\"><strong>ARM 架构下 RapidJSON 性能波动问题</strong></a></p><ul><li><p>问题背景：在多进程并发压测基准测试中，RapidJSON 单线程任务在开启 ASLR时，偶发个别任务耗时大幅增加，导致整体测试分数偏低且呈现随机性。</p></li><li><p>分析排查：</p><ul><li><p>热点分析：通过 Perf 采集热点，锁定核心瓶颈在 RapidJSON 栈管理的汇编指令 <code>LDP</code> 上。</p></li><li><p>微架构分析：分析寄存器地址与内存布局，发现 ASLR 导致的堆栈地址随机化改变了数据在 <strong>64B cacheline</strong> 内的偏移量。当偏移量随机为 56 字节时，16 字节的 <code>LDP</code> 指令读取操作会 <strong>跨越 cacheline</strong>。</p></li><li><p>对比论证：对比 X86（两条 <code>MOV</code> 指令）与 ARM（<code>LDP</code> 跨缓存行退化）的架构差异，解释了X86下性能稳定的原因。</p></li></ul></li><li><p>解决方案与结果：源码层面手动对成员变量<strong>地址对齐</strong>，可提升rapidjson 30%的性能，追平与竞品性能差距。</p></li></ul></li></ul><ul><li><p>基线建立，特征库输入，分数优化，生态能力挖掘，负载选型与提案分析等工作。</p></li></ul>",
+      "visible": true,
+      "link": "https://gitcode.com/benchmark-sig/cpubench"
+    },
+    {
+      "id": "fd358a8f-a916-459d-ba7c-45be3d6ea232",
+      "name": "SPECCPU",
+      "role": "性能分析",
+      "date": "2025/10 - 至今",
+      "description": "<p>项目背景：SPEC在10年后推出了大版本更新SPEC2026，作为业内公认的CPU基准测试，需要对该版本负载对鲲鹏及竞品的性能进行分析测定</p><ul><li><p>竞品性能对比，CPU代际对比，特征采集和聚类</p></li><li><p>stockfish</p></li><li><p>zstd</p></li></ul>",
+      "visible": true
+    },
+    {
+      "id": "p2",
+      "name": "ClusterBench",
+      "role": "模块负责人",
+      "date": "2023/6 - 至今",
+      "description": "<p>项目背景：计算生态由以CPU为中心向以数据为中心发展，对应商业模式由单机售卖转变为集群销售，需要集群性能的评测工具并建立评价标准，并体现华为UB总线高速互联优势</p><p>个人职责：</p><ul><li><p>workload集成可行性调研。调研开源微服务benchmark DeathStarBench，性能评估发现在单节点单实例下ARM相比x86 QPS指标劣势。借助jeager链路追踪和tpcdump，确认非单一容器瓶颈。使用golang profiling工具pprof分析得到runtime.poll为热点，结合perf采集off-cpu火焰图确认futex占比较高，设计microbenchmark测试futex性能验证ARM下存在劣势，推测为ARM中未实现单指令CAS导致。</p></li><li><p>框架功能开发。基于dhcp实现vm实例的ip分配；实现不同类型workload的混步测试模式；实现Linux下系统配置信息采集模块；基于reportlab实现PDF报告，实现报告模块的组件化，实现表格的自适应换页，适配PDF/JSON/CSV多格式</p></li><li><p>负载开发，数据库类型负载MySQL/TPC-C的集成。基于benchmark-sql开发tpcc类负载；定制wrk，实现latency99计算方式为秒级以适配副本模式</p><p></p></li></ul>",
+      "visible": true
+    },
+    {
+      "id": "cb69f803-65f3-40a2-8911-8e18a27132d6",
+      "name": "POC/PAE项目支撑",
+      "role": "测试/性能",
+      "date": "2024.06 - 2025.03",
+      "description": "<ul><li><p>现网GTS服务多个局点偶发性大量丢包。业务层使用dpdk，丢包时提示mbuf溢出，增加mbuf无效。前期排查发现正常状态CPU占用约50%，丢包发生时CPU占用率剧烈抖动，通过TMA分析确认问题发生时为L3 bound，结合较低的L3/mem带宽，推测lsu导致stall，验证更改L3缓存模式后可规避问题，最终建议通过SPE定位问题代码进行修复。</p></li></ul>",
+      "visible": true
+    }
+  ],
+  "menuSections": [
+    {
+      "id": "basic",
+      "title": "基本信息",
+      "icon": "👤",
+      "enabled": true,
+      "order": 0
+    },
+    {
+      "id": "skills",
+      "title": "专业技能",
+      "icon": "⚡",
+      "enabled": true,
+      "order": 1
+    },
+    {
+      "id": "experience",
+      "title": "工作经验",
+      "icon": "💼",
+      "enabled": true,
+      "order": 2
+    },
+    {
+      "id": "projects",
+      "title": "项目经历",
+      "icon": "🚀",
+      "enabled": true,
+      "order": 3
+    },
+    {
+      "id": "education",
+      "title": "教育经历",
+      "icon": "🎓",
+      "enabled": true,
+      "order": 4
+    }
+  ],
+  "certificates": [],
+  "customData": {
+    "custom-1": [
+      {
+        "id": "1629c99a-5aa3-49d1-ac65-7c0c11c001dc",
+        "title": "",
+        "subtitle": "",
+        "dateRange": "",
+        "description": "<p>在职期间工作表现良好，</p>",
+        "visible": true
+      }
+    ]
+  },
+  "activeSection": "projects",
+  "globalSettings": {
+    "baseFontSize": 16,
+    "pagePadding": 32,
+    "paragraphSpacing": 12,
+    "lineHeight": 1.5,
+    "sectionSpacing": 10,
+    "headerSize": 18,
+    "subheaderSize": 16,
+    "useIconMode": true,
+    "themeColor": "#0047AB",
+    "centerSubtitle": true
+  },
+  "id": "5147c568-ac95-4d66-bd2d-20bb1275db5b",
+  "createdAt": "2026-05-21T14:54:23.718Z",
+  "updatedAt": "2026-05-21T16:21:34.005Z",
+  "templateId": "classic"
+}
