@@ -3,6 +3,9 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Yang's Blog",
   description: "Personal Technical Research Plot",
+  head: [
+    ['link', { rel: 'icon', href: '/fav.png' }]
+  ],
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
