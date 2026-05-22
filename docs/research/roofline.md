@@ -103,22 +103,22 @@ roofline模型给出的是“优化算法”还是“优化数据搬运”这样
 
 ### 理论最大算力怎么计算？
 
-公式为：核数*核频率*FMA单元数量*2*计算宽度
+公式为：核数\*核频率\*FMA单元数量\*2\*计算宽度
 
 但是这里我们不算CPU的，而是来计算一下计算卡的最大算力（纯蹭AI），但是要算计算卡最大算力，首先要了解计算卡的架构。
 
-根据昇腾的公开信息https://www.hiascend.com/hardware/accelerator-card：
+以我自己的显卡，nv的3060ti为例，3060ti是ampere架构，主频按照boost频率为1665MHz，核心为GA104, 有38个SM（Streaming Multiprocessor），一个SM被分为4个区块，一个区块有16个只计算FP32的单元和16个既能计算FP32又能计算INT32的单元。那么就可以计算如下：
 
-核心叫做AI core，AI core上有三种计算单元
+```
+38*4*16*2*1665*2=16.2TFLOPS
+```
 
-Cube Unit (矩阵运算单元)：
-功能：达芬奇架构的核心（3D Cube），专门负责执行 FP16/INT8 的矩阵乘法运算（C = A \* B）。
-优势：在一个时钟周期内可完成 16x16x16 的矩阵乘加运算。在 Transformer 模型推理中，它负责加速核心的矩阵乘法层，提供极致的吞吐量。
-Vector Unit (向量运算单元)：
-功能：负责处理 FP32/FP16 的向量运算，如 Activation、LayerNorm、Softmax 等非矩阵类计算。
-Scalar Unit (标量运算单元)：
-功能：负责程序的流程控制、地址计算及简单的标量运算。
+但是据了解，这只是标量的最大理论算力，上面的core也叫cuda core，实际上nv的卡里面还有tensor core来专门加速AI计算。下面来计算一下tensor core的最大算力：一个SM中有4个tensor core，每个tensor core在一个周期内执行的是一个AxB+C的矩阵乘加（而上面的cuda core和CPU一样是标量的FMA）,叫MMA（Matrix Multiply Add）。一个tensor core一个周期可执行256次FP16的FMA操作，所以计算如下：
 
-那我们比葫芦画瓢来计算一下单卡的最大算力，这种AI卡的算力基本均由cube core贡献，FP16精度下：
+```
+38*4*256*2*1665=129.57TOPs
+```
 
-8core*2GHz*16^3\*2=131TFLOPS，和官方标定的280TFLOPS不一致，看来是哪里出了问题。。。
+这个MMA操作把算力上限提高了很多。
+
+_其实nv的卡的特性还挺复杂的，可以发现特化了很多不同的计算单元，算力计算起来比CPU复杂多了_

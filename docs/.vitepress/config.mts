@@ -34,7 +34,8 @@ export default defineConfig({
             { text: 'ROB', link: '/research/rob' },
             { text: 'GEMM', link: '/research/gemm' },
             { text: '二分查找', link: '/research/二分' },
-            { text: 'Cache 的 VIVT,VIPT,PIPT', link: '/research/cache的VIVT,VIPT,PIPT' }
+            { text: 'Cache 的 VIVT,VIPT,PIPT', link: '/research/cache的VIVT,VIPT,PIPT' },
+            { text: 'roofline模型回顾', link: '/research/roofline' }
           ]
         }
       ],
