@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: "Yang's Blog"
+  name: "学习与技术随笔"
   text: ""
   tagline: 体系结构、软硬结合、性能调优探索与实践
   actions:

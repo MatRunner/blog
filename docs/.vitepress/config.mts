@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "Yang's Blog",
-  description: "Personal Technical Research Plot",
+  title: "学习与技术随笔",
+  description: "体系结构/软硬协同/AI学习",
   head: [
     ['link', { rel: 'icon', href: '/fav.png' }]
   ],
