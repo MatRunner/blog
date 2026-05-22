@@ -53,6 +53,10 @@ export default defineConfig({
 
     socialLinks: [
       // { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
-    ]
+    ],
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: '<a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备2022023934号</a>'
+    }
   }
 })
