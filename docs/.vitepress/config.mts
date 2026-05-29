@@ -37,6 +37,7 @@ export default defineConfig({
               link: "/research/cache的VIVT,VIPT,PIPT",
             },
             { text: "roofline模型回顾", link: "/research/roofline" },
+            { text: "nvidia vera cpu", link: "/research/nvidia_vera_cpu" },
           ],
         },
       ],
