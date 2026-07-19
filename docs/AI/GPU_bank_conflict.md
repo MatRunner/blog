@@ -1,0 +1,106 @@
+# GPU bank confilt
+
+## 背景
+
+最近在学习cuda的一些基础知识。[学习RNN时](https://eunomia.dev/zh/others/cuda-tutorial/06-cnn-convolution/#%E6%8C%91%E6%88%98%E7%BB%83%E4%B9%A0)，有bank冲突的测试。在cpu中，有一个很相似的问题，`cpu cacheline false sharing`。这两个问题都回到了体系结构上。
+
+## 比较
+
+概念上，**bank是指将CPU的高速缓存（Cache）或物理内存（RAM）划分为多个独立的逻辑或物理存储区块。**多个并发请求就可以同时访问不同的bank，提高访存带宽。bank conflict就是多个请求打到了同一个bank上，退化为串行访问。
+
+bank在概念上更接近硬件端，cpu中提到更多的其实是cacheline false sharing。cacheline层级上是“打包的bank”概念。
+
+查阅一些资料后，我比较认可的说法是cpu和gpu涉及哲学的不同。cpu没有设计很强的“访存并发能力”，核心中的ld/st端口即使满载，一个cycle内能访问的数据量也不大。AX512这样的指令，一个cycle内也只需要16*32个float的数据量，这就天然导致了bank冲突很少发生。而gpu一个warp中就有32个thread，这样一次并发的吞吐就已经超过了CPU，且warp还只是gpu的基本执行单元。
+
+## 示例
+
+教学示例中共享内存优化的rnn写法如下, 仅截取写入share mem的部分：
+
+```c++
+// Load input data to shared memory
+    for (int c = 0; c < inputChannels; c++) {
+        // Each thread loads multiple elements to cover the tile with padding
+        for (int dy = 0; dy < tileSizeWithPadding; dy += tileSize) {
+            for (int dx = 0; dx < tileSizeWithPadding; dx += tileSize) {
+                int in_y = in_y_base + ty + dy;
+                int in_x = in_x_base + tx + dx;
+                
+                // Check bounds and apply padding
+                float value = 0.0f;
+                if (in_y >= 0 && in_y < inputSize && in_x >= 0 && in_x < inputSize) {
+                    value = input[
+                        b * inputChannels * inputSize * inputSize +
+                        c * inputSize * inputSize +
+                        in_y * inputSize + in_x
+                    ];
+                }
+                
+                // Store in shared memory if within tile bounds
+                if (ty + dy < tileSizeWithPadding && tx + dx < tileSizeWithPadding) {
+                    sharedInput[
+                        c * tileSizeWithPadding * tileSizeWithPadding +
+                        (ty + dy) * tileSizeWithPadding + (tx + dx)
+                    ] = value;
+                }
+            }
+        }
+    }
+```
+
+使用ncu采集bank conflict相关事件：
+
+```bash
+ncu --metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,l1tex__data_bank_conflicts_pipe
+# 输出如下
+convolutionSharedKernel(float *, float *, float *, int, int, int, int, int, int, int, int) (4, 4, 16)x(8, 8, 8), Context 1, Stream 7, Device 0, CC 8.6
+Section: Command line profiler metrics
+-------------------------------------------------------- ----------- ------------
+Metric Name                                              Metric Unit Metric Value
+-------------------------------------------------------- ----------- ------------
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                    67200
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum                     6144
+-------------------------------------------------------- ----------- ------------
+```
+
+可以发现有大量的bank conflict产生。必然是读写share mem时发生了conflict。
+
+根据基本知识：share mem会被划分为32个bank，每个bank通常为4byte（float）,一个warp中的32个thread如果顺序访问bank，是不会产生conflict的。那有了这个理论的“锤子”，可以回头来考究一下上面的代码。
+
+读取share mem的index为`c * tileSizeWithPadding * tileSizeWithPadding + (ty + dy) * tileSizeWithPadding + (tx + dx)`, 对于初学者来说，这个索引由于高维和一维的转换而产生了复杂的index，不利于理解，可以做简化，比如设定通道数c先为0，input数据的维度dy和dx也为0，就得到了简化后的公式`ty * tileSizeWithPadding + tx`.
+
+假设线程块设置是 blockDim.x = 16, blockDim.y = 16。
+这意味着一个线程块有 256 个线程。GPU 会把它们切成 Warp，切分的顺序是先看 tx，再看 ty。比如：
+
+- 线程 0 到 15：ty = 0，tx = 0
+- 线程 16 到 31：ty = 1，tx = 0
+
+本示例中的block维度为`dim3 blockDim(8, 8, 1);`，那么warp的分配策略为：
+
+- ty=0, tx=0~7
+- ty=1, tx=0~7
+- ty=2, tx=0~7
+- ty=3, tx=0~7
+
+本示例中的卷积核的维度为5，所以tileSizeWithPadding=8+5-1=12。那么根据简化后公式：
+
+- ty=0, tx=0~7。范围0~7
+- ty=1, tx=0~7。范围12~19
+- ty=2, tx=0~7。范围24~31
+- ty=3, tx=0~7。**计算范围36~43，%32后实际范围4~11，和ty=0，tx=4~7就发生了conflict。概率4/32=0.125.**
+
+## how to fix？
+
+似乎发现，某些算法似乎天生就会产生bank conflict。比如上面示例中，block的维度是（8，8），卷积核的size（5，5），就会有12.5%的冲突概率。如果卷积核改为（3，3）大小，计算冲突概率为18.75%. 
+
+在实际的测试中，卷积核（3，3）实际的冲突计数反而少了：
+```bash
+convolutionSharedKernel(float *, float *, float *, int, int, int, int, int, int, int, int) (4, 4, 16)x(8, 8, 8), Context 1, Stream 7, Device 0, CC 8.6
+Section: Command line profiler metrics
+-------------------------------------------------------- ----------- ------------
+Metric Name                                              Metric Unit Metric Value
+-------------------------------------------------------- ----------- ------------
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                    32257
+l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum                     4096
+-------------------------------------------------------- ----------- ------------
+```
+这是因为小的卷积核会有更少的访存次数，所以纯看冲突计数不能佐证我们的发现。这里单纯的ncu的指标似乎不能计算出“冲突比例”这样的指标。
