@@ -22,6 +22,7 @@ export default defineConfig({
               link: "/AI/llm推理时的内存占用计算",
             },
             { text: "从零学 Transformer", link: "/AI/从零学transformer" },
+            { text: "GPU中的bank conflict", link: "/AI/GPU_bank_conflict" },
           ],
         },
       ],
