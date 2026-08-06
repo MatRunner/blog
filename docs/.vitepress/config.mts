@@ -23,6 +23,7 @@ export default defineConfig({
             },
             { text: "从零学 Transformer", link: "/AI/从零学transformer" },
             { text: "GPU中的bank conflict", link: "/AI/GPU_bank_conflict" },
+            { text: "KV cache及相关优化技术理解", link: "/AI/kvcache" },
           ],
         },
       ],
