@@ -1,0 +1,65 @@
+docs/AI/从零学transformer.md
+  s_e9343e0935e928::t_da2c6cd0bd1b52 109
+  s_6dc419d685eb01::t_47bdbf5240ee91 107
+  s_1ad84d1e2c21be::t_ecbedb19eab09f 113
+  h_fdea97ab61e059 97
+  s_e9343e0935e928::t_75c379e17e8208 110-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.2",
+  "base_commit_sha": "e1824f2b6167905249937a0dfde61b00d0ae64a4",
+  "prompts": {},
+  "humans": {
+    "h_fdea97ab61e059": {
+      "author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>"
+    }
+  },
+  "sessions": {
+    "s_1ad84d1e2c21be": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-5e645f88-1a21-416e-b51b-902ad0171c2e",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "external_session_id": "icr-5e645f88-1a21-416e-b51b-902ad0171c2e",
+        "tool": "trae-cue",
+        "client_type": "plugin",
+        "source_scene": "cue"
+      }
+    },
+    "s_6dc419d685eb01": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-f5e0ae2f-1d9e-43a9-931c-84fefad8d70e",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "client_type": "plugin",
+        "tool": "trae-cue",
+        "source_scene": "cue",
+        "external_session_id": "icr-f5e0ae2f-1d9e-43a9-931c-84fefad8d70e"
+      }
+    },
+    "s_e9343e0935e928": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-f4daa2d9-e5df-47b0-a682-b67e9d13f81d",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "client_type": "plugin",
+        "external_session_id": "icr-f4daa2d9-e5df-47b0-a682-b67e9d13f81d",
+        "tool": "trae-cue",
+        "source_scene": "cue"
+      }
+    }
+  }
+}
