@@ -59,6 +59,7 @@ attention如何计算呢？根据第一性原理，如果要计算一个词的at
 ## position encoding
 
 在矩阵化attention计算中，流程如下：
+
 1. 将所有的词向量打包成了矩阵X
 2. 将X分别与权重矩阵WQ,WK,WV进行矩阵乘法，得到Q,K,V
 3. Q和K_T进行点积，得到一系列表示相关性的值，然后使用softmax归一化
@@ -87,7 +88,29 @@ attention如何计算呢？根据第一性原理，如果要计算一个词的at
 
 linear 层是一个全连接层，将解码器的输出向量映射到一个高维空间，称为logits向量。如果模型学会了1000个词，那么logits向量的维度就是1000。softmax层会将logits向量转换为一个概率分布，每个元素表示对应词的概率。最后，将概率分布中的最大值对应的词作为模型的输出。
 
+## 补充：论文原文相关知识点
 
+根据李沐老师的论文精读视频，补充一些知识点。
+
+论文中的transformer架构图在看懂之后还是比较简单的。
+
+<img src="../img/transformer_arch.png" alt="transformer架构图" width="30%" />
+
+原文中应用的是一个翻译场景，该场景下，需要decoder和encoder模块同时使用。
+
+之前一直没太理解这两个模块，实际上，这两个模块不太严谨的说都是由attention layer和MLP组成的。
+
+从架构图中，左侧的是encoder模块，原文中的N=6，也就是说encoder模块重复了6层。encoder模块由两个sub layer组成：multi-head attention layer和MLP。MHA的输入是 **来源于同一个序列的 QKV**，attention的输出是和输入维度一致的，包含完整序列信息的向量。attention后跟了残差链接和layerNorm，目的是为了避免梯度消失和获取稳定的特征分布。
+
+MLP层起的是提取特征的作用。经过attention后，虽然输出已经包含了序列的所有信息，但是具体需要的是什么还是需要MLP来提取的。MLP层后仍然跟着残差链接和layerNorm。得到的结果送入下一层继续处理。
+
+理解左侧的encoder模块后，可以发现右侧的decoder模块基本是在encoder模块上做了少许的改动。首先，decoder模块的sublayer中多了一个masked multi-head attention layer。然后它同样有和encoder模块一样的multi-head attention layer和MLP层。
+
+masked multi-head attention layer 多了一个mask矩阵，用于屏蔽未来的位置。这是为了避免在预测下一个词时，模型能够“ cheat” 并使用未来的信息。
+
+decoder的MHA有稍许不同，它的输入的K,V来自于encoder的输出，Q才是decoder自身序列的查询向量。它的意义是，一个序列可以在另一个序列中查询相关性映射，这就是翻译场景。
+
+> 这里我灵光一闪，像GPT这种纯对话的decoder模型，显然是不需要这种cross-attention的。简单搜索后，GPT确实decoder模块中只有masked multi-head attention layer和MLP层。
 
 ## 参考
 
