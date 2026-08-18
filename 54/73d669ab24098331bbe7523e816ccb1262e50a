@@ -1,0 +1,129 @@
+docs/AI/主流AI卡架构.md
+  s_253614609aa7be::t_843a5e31ae115b 50
+  s_7e2a12bd39f5ac::t_493b950d379a3a 22-26,29-34
+  s_54d577f9054831::t_61c549f5fe1f25 11
+  s_eeca783c085981::t_a7cc8ff53477fc 43
+  s_1b01f088d51739::t_5d15f92fcadd78 16-19
+  s_e6acf83d347de3::t_4073bd472fd475 27-28
+  s_e6c9add367c4e6::t_2f6e52fa919699 39
+  h_fdea97ab61e059 51-62,64-65
+  s_54d577f9054831::t_be37867620d5c4 8-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.2",
+  "base_commit_sha": "5473d669ab24098331bbe7523e816ccb1262e50a",
+  "prompts": {},
+  "humans": {
+    "h_fdea97ab61e059": {
+      "author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>"
+    }
+  },
+  "sessions": {
+    "s_1b01f088d51739": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-9e933d4a-f226-429a-bac1-0f3ca1e2dbd4",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "tool": "trae-cue",
+        "edit_kind": "file_edit",
+        "external_session_id": "icr-9e933d4a-f226-429a-bac1-0f3ca1e2dbd4",
+        "client_type": "ide",
+        "source_scene": "cue"
+      }
+    },
+    "s_253614609aa7be": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-1cbf54b1-986d-48c7-825f-192a4bb9c9df",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "external_session_id": "icr-1cbf54b1-986d-48c7-825f-192a4bb9c9df",
+        "edit_kind": "file_edit",
+        "client_type": "ide",
+        "tool": "trae-cue",
+        "source_scene": "cue"
+      }
+    },
+    "s_54d577f9054831": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-89191634-af9f-417d-8f75-ec800f818fcd",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "tool": "trae-cue",
+        "client_type": "ide",
+        "external_session_id": "icr-89191634-af9f-417d-8f75-ec800f818fcd",
+        "source_scene": "cue",
+        "edit_kind": "file_edit"
+      }
+    },
+    "s_7e2a12bd39f5ac": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-7c95f99d-1121-4114-a3cb-4fb4742d5f4e",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "source_scene": "cue",
+        "client_type": "ide",
+        "tool": "trae-cue",
+        "external_session_id": "icr-7c95f99d-1121-4114-a3cb-4fb4742d5f4e",
+        "edit_kind": "file_edit"
+      }
+    },
+    "s_e6acf83d347de3": {
+      "agent_id": {
+        "tool": "trae-code-edit",
+        "id": "ai_tab-20260817201831010000020016455F204",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "external_session_id": "20260817201831010000020016455F204",
+        "client_type": "ide",
+        "source_scene": "cue",
+        "tool": "trae-code-edit"
+      }
+    },
+    "s_e6c9add367c4e6": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-09cac181-b6d0-4907-9043-9f1301e93e08",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "external_session_id": "icr-09cac181-b6d0-4907-9043-9f1301e93e08",
+        "source_scene": "cue",
+        "tool": "trae-cue",
+        "client_type": "ide"
+      }
+    },
+    "s_eeca783c085981": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-ef2762a1-75eb-4280-a3c3-111943f3b202",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "tool": "trae-cue",
+        "external_session_id": "icr-ef2762a1-75eb-4280-a3c3-111943f3b202",
+        "source_scene": "cue",
+        "client_type": "ide",
+        "edit_kind": "file_edit"
+      }
+    }
+  }
+}
