@@ -61,7 +61,14 @@ AI core负责矩阵，矢量计算，对应的，AI core包括：
 对于vector计算单元的数据流向：
 - GM → UB → Vector → UB → GM
 
-同样的，ascend编程模型的设计
+同样的，ascend编程模型的设计也依托于硬件设计，官方的介绍中，[编程范式](https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/opdevg/Ascendcopdevg/atlas_ascendc_10_00015.html)如下：
+
+1. 获取Local Memory的内存：调用AllocTensor申请内存，或者从上游队列DeQue一块内存数据。
+2. 完成计算或者数据搬运。
+3. 把上一步处理好的数据调用EnQue入队。
+4. 调用FreeTensor释放不再需要的内存。
+
+这里以昇腾官方的
 
 ## 参考
 
