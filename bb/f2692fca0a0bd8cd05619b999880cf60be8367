@@ -1,0 +1,35 @@
+docs/AI/主流AI卡架构.md
+  s_98831b3252237c::t_8562494d69b7b1 78,80,88-104
+  h_fdea97ab61e059 107,109,111-146
+  s_98831b3252237c::t_912a331cf6f969 76-77
+  s_98831b3252237c::t_6252860f4ed484 79
+  s_98831b3252237c::t_61a258479a0124 81-83,85-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.2",
+  "base_commit_sha": "bbf2692fca0a0bd8cd05619b999880cf60be8367",
+  "prompts": {},
+  "humans": {
+    "h_fdea97ab61e059": {
+      "author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>"
+    }
+  },
+  "sessions": {
+    "s_98831b3252237c": {
+      "agent_id": {
+        "tool": "trae-cue",
+        "id": "ai_tab-icr-8dd03fd6-2639-442c-b4fb-5462f4f6a451",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "external_session_id": "icr-8dd03fd6-2639-442c-b4fb-5462f4f6a451",
+        "tool": "trae-cue",
+        "source_scene": "cue",
+        "client_type": "ide"
+      }
+    }
+  }
+}
