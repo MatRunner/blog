@@ -73,7 +73,77 @@ AI core负责矩阵，矢量计算，对应的，AI core包括：
 3. 把上一步处理好的数据调用EnQue入队。
 4. 调用FreeTensor释放不再需要的内存。
 
-这里以昇腾官方的
+但是具体到代码怎么写，ascendC支持SIMD和SIMT[两种形式](https://www.hiascend.com/document/detail/zh/canncommercial/latest/programug/Ascendcopdevg/atlas_ascendc_map_10_0018.html)。SIMT的写法类似CUDA，`<<<blockDim, threadDim, shareMemSize, stream>>>`中的参数是完全兼容的。
+
+```cpp
+__global__ void add_custom(float* x, float* y, float* z, uint64_t total_length)
+{
+    // Calculate global thread ID
+    int32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // Maps to the row index of output tensor
+    if (idx >= total_length) {
+        return;
+    }
+    z[idx] = x[idx] + y[idx];
+}
+
+// 通过<<<...>>>内核调用符调用算子
+std::vector<float> add(std::vector<float>& x, std::vector<float>& y)
+{
+    ...
+    // Calc splite params
+    uint32_t block_num = 48;
+    uint32_t thread_num_per_block = 256;
+    uint32_t dyn_ubuf_size = 0;  // No need to alloc dynamic memory.
+    // Call kernel funtion with <<<...>>>
+    add_custom<<<block_num, thread_num_per_block, dyn_ubuf_size, stream>>>(x_device, y_device, z_device, x.size());
+    ...
+    return output;
+}
+
+```
+
+SIMT的写法是后出现的，目的就是为了兼容cuda生态。写法上虽样，硬件资源映射上也很相似：
+
+- blockDim再cuda上映射的是GPU上的SM，在NPU上映射的是AI Core。
+- threadDim再cuda上映射的是warp，在NPU上映射的是thread。这一级就是纯粹的逻辑抽象了。
+
+另外还有一种SIMD的写法，也是ascendC最先支持的写法：
+
+```cpp
+__aicore__ inline void Process()
+{
+    // loop count need to be doubled, due to double buffer
+    int32_t loopCount = this->tileNum * BUFFER_NUM;
+    // tiling strategy, pipeline parallel
+    for (int32_t i = 0; i < loopCount; i++) {
+        CopyIn(i);
+        Compute(i);
+        CopyOut(i);
+    }
+}
+__aicore__ inline void Compute(int32_t progress)
+{
+    // deque input tensors from VECIN queue
+    AscendC::LocalTensor<float> xLocal = inQueueX.DeQue<float>();
+    AscendC::LocalTensor<float> yLocal = inQueueY.DeQue<float>();
+    AscendC::LocalTensor<float> zLocal = outQueueZ.AllocTensor<float>();
+    // call Add instr for computation
+    AscendC::Add(zLocal, xLocal, yLocal, this->tileLength);
+    // enque the output tensor to VECOUT queue
+    outQueueZ.EnQue<float>(zLocal);
+    // free input tensors for reuse
+    inQueueX.FreeTensor(xLocal);
+    inQueueY.FreeTensor(yLocal);
+}
+
+```
+
+看起来是串行的写法，但是AscendC中提供的API本质上是非阻塞的异步方法。这种写法掩盖了更多硬件特性信息。
+
+## AMD CDNA
+
+todo
 
 ## 参考
 
