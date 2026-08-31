@@ -1,0 +1,59 @@
+docs/AI/再战transformer.md
+  s_96b8f257416547::t_2e378b465a73f6 167-171
+  s_96b8f257416547::t_321de6250ffdc3 1-114,119-129,131,140-166,172-180,182,186,188,192-235
+  s_96b8f257416547::t_a7a3c20d14aecf 130,132-139
+  s_96b8f257416547::t_d374d6a4b86f80 181,183-185,187,189-191
+  s_96b8f257416547::t_fd910eb1a36f2d 115-118
+docs/.vitepress/config.mts
+  s_b935093a4c4ccd::t_7eafa8c3bd9d9f 28
+  s_96b8f257416547::t_cc20777f9bf299 6-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.2",
+  "base_commit_sha": "2936979ecb8df00e9fc75eb547ab3a91d00ef98b",
+  "prompts": {},
+  "humans": {
+    "h_fdea97ab61e059": {
+      "author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>"
+    }
+  },
+  "sessions": {
+    "s_96b8f257416547": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a0fc7de26ca8327379c4431",
+        "model": "glm-5.3"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "session_id": "6a0fc7de26ca8327379c4431",
+        "tool_use_id": "6a9547c0ad575b4f997b5d1d",
+        "tool_id": "icube:applyChatSnapshotPatch",
+        "tool_type": "builtin",
+        "client_type": "ide",
+        "edit_kind": "file_edit",
+        "operation_id": "6a9547c0ad575b4f997b5d1d",
+        "source_scene": "agent",
+        "runtime_client": "trae-tob-git-ai",
+        "external_session_id": "6a0fc7de26ca8327379c4431",
+        "dedupe_key": "6a0fc7de26ca8327379c4431:6a9547c0ad575b4f997b5d1d:afterEdit:9f7a54fe"
+      }
+    },
+    "s_b935093a4c4ccd": {
+      "agent_id": {
+        "tool": "trae-code-edit",
+        "id": "ai_tab-20260831171555010000244251499FCAB",
+        "model": "default"
+      },
+      "human_author": "gcw_oH7g7i7q <gcw_oH7g7i7q@noreply.gitcode.com>",
+      "custom_attributes": {
+        "edit_kind": "file_edit",
+        "tool": "trae-code-edit",
+        "source_scene": "cue",
+        "client_type": "ide",
+        "external_session_id": "20260831171555010000244251499FCAB"
+      }
+    }
+  }
+}
