@@ -1,0 +1,151 @@
+# 主流AI卡架构
+
+## 写在前面
+
+准备开个新坑，学习一下当前主流AI计算卡的架构。
+
+## NVIDIA GPU架构
+
+![gpu](../img/gpu-cpu-system-diagram.png)
+
+学习GPU架构，NVIDIA 肯定是绕不开的。硬件层次上，简单的划分就是GPU->GPCs->SMs，这样的包含关系，但是实际上更关注SM。可以认为SM是GPU的基本计算单元，每个SM都有自己的寄存器文件、共享内存、L1缓存、L2缓存等。
+
+CUDA编程模型和SM的设计密切相关。CUDA程序中：
+
+```cpp
+__global__ void kernel(int *a, int *b, int *c) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    c[tid] = a[tid] + b[tid];
+}
+
+int main(){
+    int *a, *b, *c;
+    int size = 1024;
+    cudaMalloc((void**)&a, size * sizeof(int));
+    cudaMalloc((void**)&b, size * sizeof(int));
+    cudaMalloc((void**)&c, size * sizeof(int));
+    // kernel<<<blockPerGrid, threadPerBlock>>>(args);
+    kernel<<<1, size>>>(a, b, c);
+    cudaFree(a);
+    cudaFree(b);
+    cudaFree(c);
+    return 0;
+}
+```
+
+开发者能控制的就是blockPerGrid和threadPerBlock，这两个参数确定了CUDA程序在GPU上的并行度。threadPerBlock最大为1024，以32个线程为一个warp，warp是SM进行计算的基本调度单位。
+
+## Ascend NPU
+
+GPU的全程是Graphics Processing Unit，而NPU的全程是Neural Processing Unit。从名字上可以看出，GPU主要用于图形渲染，而NPU主要用于神经网络计算。
+
+![ascend_arch](../img/ascend-arch.png)
+
+![ascend_aicore](../img/ascend-aicore.png)
+
+AI core负责矩阵，矢量计算，对应的，AI core包括：
+
+1. 计算单元：包括cube，vector和scalar计算单元。
+2. 存储单元：包括L1 Buffer、L0A Buffer、L0B Buffer、L0C Buffer、Unified Buffer、BiasTable Buffer、Fixpipe Buffer等专为高效计算设计的存储单元。这里存储单元的类型显然比GPU的要复杂很多。
+3. 搬运单元：包括MTE1、MTE2、MTE3和FixPipe，用于数据在不同存储单元之间的高效传输。
+
+计算单元中，需要区分cube, vector和scalar计算单元。
+
+- cube计算单元：负责矩阵乘法计算，每个cube计算单元一次可以处理两个fp16的16x16矩阵乘。
+- vector计算单元：负责矢量计算，每个vector计算单元一次可以处理两个fp16矢量的相乘或相加。
+- scalar计算单元：负责标量计算和程序的流程控制（循环，分支）
+
+**存储单元**中，AI Core的主要内部存储包括：L1 Buffer（L1缓冲区），L0 Buffer（L0缓冲区），Unified Buffer（统一缓冲区）等。为了配合AI Core中的数据传输和搬运，AI Core中还包含MTE（Memory Transfer Engine，数据传递引擎）搬运单元，在搬运过程中可执行随路数据格式/类型转换。（具体作用可以参考昇腾文档）
+
+对于cube计算单元的数据流向：
+
+1. GM →L1→L0A/L0B →Cube →L0C→FixPipe→GM
+2. GM →L1→L0A/L0B →Cube →L0C→FixPipe→L1
+
+对于vector计算单元的数据流向：
+
+- GM → UB → Vector → UB → GM
+
+同样的，ascend编程模型的设计也依托于硬件设计，官方的介绍中，[编程范式](https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/opdevg/Ascendcopdevg/atlas_ascendc_10_00015.html)如下：
+
+1. 获取Local Memory的内存：调用AllocTensor申请内存，或者从上游队列DeQue一块内存数据。
+2. 完成计算或者数据搬运。
+3. 把上一步处理好的数据调用EnQue入队。
+4. 调用FreeTensor释放不再需要的内存。
+
+但是具体到代码怎么写，ascendC支持SIMD和SIMT[两种形式](https://www.hiascend.com/document/detail/zh/canncommercial/latest/programug/Ascendcopdevg/atlas_ascendc_map_10_0018.html)。SIMT的写法类似CUDA，`<<<blockDim, threadDim, shareMemSize, stream>>>`中的参数是完全兼容的。
+
+```cpp
+__global__ void add_custom(float* x, float* y, float* z, uint64_t total_length)
+{
+    // Calculate global thread ID
+    int32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // Maps to the row index of output tensor
+    if (idx >= total_length) {
+        return;
+    }
+    z[idx] = x[idx] + y[idx];
+}
+
+// 通过<<<...>>>内核调用符调用算子
+std::vector<float> add(std::vector<float>& x, std::vector<float>& y)
+{
+    ...
+    // Calc splite params
+    uint32_t block_num = 48;
+    uint32_t thread_num_per_block = 256;
+    uint32_t dyn_ubuf_size = 0;  // No need to alloc dynamic memory.
+    // Call kernel funtion with <<<...>>>
+    add_custom<<<block_num, thread_num_per_block, dyn_ubuf_size, stream>>>(x_device, y_device, z_device, x.size());
+    ...
+    return output;
+}
+
+```
+
+SIMT的写法是后出现的，目的就是为了兼容cuda生态。写法上虽样，硬件资源映射上也很相似：
+
+- blockDim再cuda上映射的是GPU上的SM，在NPU上映射的是AI Core。
+- threadDim再cuda上映射的是warp，在NPU上映射的是thread。这一级就是纯粹的逻辑抽象了。
+
+另外还有一种SIMD的写法，也是ascendC最先支持的写法：
+
+```cpp
+__aicore__ inline void Process()
+{
+    // loop count need to be doubled, due to double buffer
+    int32_t loopCount = this->tileNum * BUFFER_NUM;
+    // tiling strategy, pipeline parallel
+    for (int32_t i = 0; i < loopCount; i++) {
+        CopyIn(i);
+        Compute(i);
+        CopyOut(i);
+    }
+}
+__aicore__ inline void Compute(int32_t progress)
+{
+    // deque input tensors from VECIN queue
+    AscendC::LocalTensor<float> xLocal = inQueueX.DeQue<float>();
+    AscendC::LocalTensor<float> yLocal = inQueueY.DeQue<float>();
+    AscendC::LocalTensor<float> zLocal = outQueueZ.AllocTensor<float>();
+    // call Add instr for computation
+    AscendC::Add(zLocal, xLocal, yLocal, this->tileLength);
+    // enque the output tensor to VECOUT queue
+    outQueueZ.EnQue<float>(zLocal);
+    // free input tensors for reuse
+    inQueueX.FreeTensor(xLocal);
+    inQueueY.FreeTensor(yLocal);
+}
+
+```
+
+看起来是串行的写法，但是AscendC中提供的API本质上是非阻塞的异步方法。这种写法掩盖了更多硬件特性信息。
+
+## AMD CDNA
+
+todo
+
+## 参考
+
+1. <https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html#gpu-hardware-model>
+2. <https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/opdevg/Ascendcopdevg/atlas_ascendc_10_0008.html>
