@@ -3,6 +3,9 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "学习与技术随笔",
   description: "体系结构/软硬协同/AI学习",
+  markdown: {
+    math: true,
+  },
   head: [["link", { rel: "icon", href: "/fav.png" }]],
   themeConfig: {
     nav: [
@@ -22,6 +25,7 @@ export default defineConfig({
               link: "/AI/llm推理时的内存占用计算",
             },
             { text: "从零学 Transformer", link: "/AI/从零学transformer" },
+            { text: "再战transformer", link: "/AI/再战transformer" },
             { text: "GPU中的bank conflict", link: "/AI/GPU_bank_conflict" },
             { text: "KV cache及相关优化技术理解", link: "/AI/kvcache" },
           ],
