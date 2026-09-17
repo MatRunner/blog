@@ -113,4 +113,136 @@ class SelfAttention(nn.Module):
     out=self.Wout(attn_w)
     return out
 ```
+在单头注意力的基础上，稍作修改就可以实现多头注意力，主要增加的是改变QKV的形状，以及最后拼接的操作。
+```python
+import torch
+import torch.nn as nn
+import math
 
+class MultiHeadAttention(nn.Module):
+  def __init__(self,d_model,num_heads):
+    super().__init__()
+    self.d_model=d_model
+    self.num_heads=num_heads
+    assert d_model%num_heads==0
+    self.d_k=d_model//num_heads
+    self.WQ=nn.Linear(d_model,d_model)
+    self.WK=nn.Linear(d_model,d_model)
+    self.WV=nn.Linear(d_model,d_model)
+    self.Wout=nn.Linear(d_model,d_model)
+  def forward(self,X,mask):
+    batch_size,seq_len,_=X.shape
+    Q=self.WQ(X)
+    K=self.WK(X)
+    V=self.WV(X)
+    Q=Q.view(batch_size,seq_len,self.num_heads,self.d_k).transpose(1,2)
+    K=K.view(batch_size,seq_len,self.num_heads,self.d_k).transpose(1,2)
+    V=V.view(batch_size,seq_len,self.num_heads,self.d_k).transpose(1,2)
+    scores=torch.matmul(Q,K.transpose(-1,-2)) / math.sqrt(self.d_k)
+    if mask is not None:
+      scores=scores.masked_fill(mask,float('-inf'))
+    scores=torch.softmax(scores,dim=-1)
+    attn_w=torch.matmul(scores,V)
+    attn_w=attn_w.transpose(1,2).reshape(batch_size,seq_len,self.d_model)
+    out=self.Wout(attn_w)
+    return out
+```
+## FFN
+
+起码对于初学者的我来说，FFN是一个很容易搞混的一个模块，主要就是类似的叫法太多了，比如：
+- feed forward neural network, 前馈神经网络，就演化出好多叫法，FFN，FNN，FFNN
+- 多层感知机，MLP
+- 全连接层
+
+仅对transformer这个架构来说，FFN指的是两个全连接层中间夹着一个ReLU激活函数，本质上是一个基础的两层MLP。
+
+```python
+import torch
+import torch.nn as nn
+class PoswiseFFN(nn.Module):
+  def __init__(self,d_model,d_ff,p):
+    # 入参，需要高维的维度，和dropout的比例
+    super().__init__()
+    self.d_model=d_model
+    self.d_ff=d_ff
+    self.p=p
+    self.fc1=nn.Linear(d_model,d_ff)
+    self.fc2=nn.Linear(d_ff,d_model)
+    self.dropout=nn.Dropout(p=p)
+    self.relu=nn.ReLU(inplace=True)
+  def forward(self,X):
+    # ffn就是两层的MLP，两个全连接夹一个激活曾
+    out=self.fc1(X)
+    out=self.relu(out)
+    out=self.fc2(out)
+    return self.dropout(out)
+```
+
+## 层归一化/残差
+
+这两个使用pytorch现成的模块，要注意调用的时机：
+- 什么时候需要残差连接？网络层数太深，导致梯度消失/爆炸，使用残差连接可以有效缓解这个问题。
+- 什么时候需要层归一化？进行了大数值的变换后都需要进行归一化把数值分布拉回正常范围。
+
+代码的实现也十分简单：
+```python
+import torch
+import torch.nn as nn
+class ResidualLayerNorm(nn.Module):
+  def __init__(self,d_model,p):
+    super().__init__()
+    self.d_model=d_model
+    self.p=p
+    self.layernorm=nn.LayerNorm(d_model)
+    self.dropout=nn.Dropout(p=p)
+  def forward(self,X,sublayer_output):
+    # 残差连接就是简单的加法
+    return self.dropout(self.layernorm(X+sublayer_output))
+```
+其实可直接在大的模块中顺便实现了：
+```python
+out=self.norm1(residual+self.attn(X,mask))
+out=self.norm2(residual+self.ffn(out))
+```
+## 组装起来
+
+上面的代码在实现中是没有考虑到是decoder还是encoder的，并不能直接组装起来。比如attention模块中，QKV的来源是encoder和decoder的明显区别，在参数上同样要做区分。
+组装encoder-decoder，包括cross-attention：
+```python
+import torch
+import torch.nn as nn
+
+class DecoderLayer(nn.Module):
+    def __init__(self, d_model: int, num_heads: int, d_ff: int, p_posffn: float, p_attn: float):
+        super().__init__()
+        self.d_model = d_model
+        
+        # 1. 定义两个独立的注意力模块，分别拥有独立的 QKV 权重矩阵
+        self.self_attn = MultiHeadAttention(d_model, num_heads, p=p_attn)
+        self.cross_attn = MultiHeadAttention(d_model, num_heads, p=p_attn)
+        
+        self.poswise_ffn = PoswiseFFN(d_model, d_ff, p=p_posffn)
+        
+        # 2. LayerNorm 作用于完整的 d_model 维度
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.norm3 = nn.LayerNorm(d_model)
+
+    def forward(self, dec_in, enc_out, dec_mask, dec_enc_mask):
+        # 1. Masked Self-Attention
+        residual = dec_in
+        ctx = self.self_attn(dec_in, dec_in, dec_in, dec_mask)
+        dec_out = self.norm1(residual + ctx)
+
+        # 2. Cross-Attention（修正 residual 变量名，并使用独立的 cross_attn 模块）
+        residual = dec_out
+        ctx = self.cross_attn(dec_out, enc_out, enc_out, dec_enc_mask)
+        dec_out = self.norm2(residual + ctx)
+
+        # 3. Position-wise Feed Forward
+        residual = dec_out
+        out = self.poswise_ffn(dec_out)
+        out = self.norm3(residual + out)
+        
+        return out
+```
