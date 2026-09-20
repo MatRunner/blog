@@ -27,6 +27,7 @@ export default defineConfig({
             { text: "从零学 Transformer", link: "/AI/从零学transformer" },
             { text: "再战transformer", link: "/AI/再战transformer" },
             { text: "pytorch实现transformer", link: "/AI/pytorch实现transformer" },
+            { text: "主流AI卡架构", link: "/AI/主流AI卡架构" },
             { text: "GPU中的bank conflict", link: "/AI/GPU_bank_conflict" },
             { text: "KV cache及相关优化技术理解", link: "/AI/kvcache" },
           ],

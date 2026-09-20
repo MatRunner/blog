@@ -4,6 +4,8 @@
 
 准备开个新坑，学习一下当前主流AI计算卡的架构。
 
+> 在进行这篇笔记的过程中，阅读到了deepseek大佬刘胜与的[《我不得不把才华埋葬在昨天》](https://mp.weixin.qq.com/s/zk0KxuLzhmMJ4LPYW_OHMA)，这篇文章是一定程度上的破圈了，即使是身处AI最中心的开发者，也会因为AI的日新月异而思考转型的问题。只需要给AI提供如硬件架构，语法规范之类的信息，AI自己就能针对算子进行迭代优化。而人力要完成这个工作，学习硬件架构，编程规范，调优工具每一个都要消耗大量的时间。
+
 ## NVIDIA GPU架构
 
 ![gpu](../img/gpu-cpu-system-diagram.png)
@@ -141,7 +143,17 @@ __aicore__ inline void Compute(int32_t progress)
 
 看起来是串行的写法，但是AscendC中提供的API本质上是非阻塞的异步方法。这种写法掩盖了更多硬件特性信息。
 
-## AMD CDNA
+## AMD CDNA & ROCm
+
+AMD的显卡有两种架构，在GCN架构之后，分化成了两种架构，一种是面向C端市场的RDNA，一种是面向数据中心的CDNA。简单来说，RDNA中保留了图形处理的相关单元，配合低延迟的GDDR显存；而CDNA中则专注于神经网络计算，删除了所有的图形处理单元，增加了矩阵计算核，采用了高带宽的HBM显存。
+
+这里不会特别仔细的研究CDNA架构，仅作基础的概念学习和对比。从CDNA4的白皮书中，AMD主要强调的是他的先进封装技术。CDNA4将XCD计算芯片垂直堆叠在IOD芯片上，
+
+ROCm（Radeon Open Compute），简单理解就是AMD上的“CUDA生态”。在AMD GPU环境的pytorch中，使用`torch.cuda.is_available()`返回的是True。
+
+AMD的路线是完全兼容cuda，它并没有实现自己的一套开发语言，而是沿用了cuda的编程模型。使用HIP层做转换，但是就会面临和硬件特性相关的PTX汇编，是无法完全达到NVIDIA GPU的性能，只能人工优化。所以一些场景下，如pytorch，AMD的性能会低于NVIDIA GPU。
+
+## 寒武纪 思元
 
 todo
 
