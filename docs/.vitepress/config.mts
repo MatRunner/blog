@@ -46,6 +46,7 @@ export default defineConfig({
             },
             { text: "roofline模型回顾", link: "/research/roofline" },
             { text: "nvidia vera cpu", link: "/research/nvidia_vera_cpu" },
+            { text: "Domain Specific Architecture", link: "/research/DSA" },
           ],
         },
       ],
