@@ -62,6 +62,37 @@ $$
 
 即计算量降为原来的 $3/(s+2)$，加速比约为 $(s+2)/3$。序列越长（$s$ 越大），KV cache 的优势越明显。
 
+### kv cache的显存占比估计
+
+确定一个模型、拿到一个硬件环境，来预估能跑多少并发是一个经典的场景问题。
+
+模型的权重占多少显存很好估计：fp16 下，直接参数量 $\times 2$ 字节即可。
+
+KV cache 的显存则和序列长度直接相关，一个 token 的 KV cache 大小由模型自身结构决定。设：
+
+- 隐藏层维度 $d$（MHA 下 head 数不影响，各 head 拼起来仍是 $d$）
+- decoder 层数 $L$
+- 序列长度 $s$，batch size 为 $b$
+- 每个元素占 $p$ 字节（fp16 时 $p = 2$）
+
+K、V 各存一份，则 KV cache 的显存占用为
+
+$$
+M_{\text{kv}} = \underbrace{2}_{K,\,V} \cdot d \cdot L \cdot s \cdot b \cdot p
+$$
+
+若用于 KV cache 的可用显存为 $V$，则可容纳的总 token 数为
+
+$$
+s_{\text{total}} = \frac{V}{2 \cdot d \cdot L \cdot p}
+$$
+
+生产场景中序列长度存在一个均值 $s_{\text{avg}}$，据此可估算最大并发数：
+
+$$
+\text{concurrency} = \frac{s_{\text{total}}}{s_{\text{avg}}}
+$$
+
 ## pageattention
 
 os中是对内存有一套完善的管理策略的，但是GPU上并没有有一个GPU OS来管理，其内存的分配方式是传统的开发者手动分配。手动分配的问题就复现了早期os内存管理的问题：内存碎片化。
