@@ -152,3 +152,15 @@ V: 和S进行一次计算，需要存在HBM中。
 其实softmax可以进行算法优化，它要计算必须要一整行的值。flashattention使用的不是softmax而是online softmax。区别是它维护了两个全局变量（局部最大值和指数和，在KV块迭代时，不断对临时的O进行修正，最终得到的O和完整的softmax结果是一致的（数学可证明）。
 
 总结来看，**flashattention的性能优化其实是削减了中间矩阵S和softmax(S)的存储，使计算过程都在SRAM中完成。**
+
+## MHA MQA GQA MLA
+
+MHA（multi head attention）就是标准的多头注意力，每个头都有自己的kv cache。整体的规模在2*seq_len*d_model，随着seq_len膨胀，kv cache会线性膨胀。
+
+MQA（multi query attention），所有的Q可以共享一组K和V，如果有h个头的情况下，K和V的规模就缩减到了原来的1/h，而Q不变，KV cache的体积就减少到原来的1/h。代价是由于只保留了一组KV，语义表达上受限。这个问题其实可以稍微细究一下：
+- 为什么保留了Q而共享一组KV？实验表明，多组KV中，信息是有大量的冗余的。也就是可以使用一组KV来代表所有KV，代价是语义的轻度损失。而Q本身有着查询维度的含义，再进行压缩就退化成了单头注意力了。
+
+GQA（Grouped query attention）。GQA是MHA和MQA的折中方案。将h个头分为g个组，每组共享一组KV。这样，有g组KV，cache的体积缩减为原来的g/h，Q仍然不变。
+从概念上就可以看出，GQA就是针对MQA语义受损的问题的改进方案。通过增加g的组数，在cache体积和模型性能的权衡。
+
+MLA（multi latent attention）。DeepSeek-V2 提出了 MLA（Multi-Latent Attention），代表了另一种压缩 KV Cache 的思路。MLA的核心思想是，将kv cache压缩进低维潜在空间，只缓存这个低位空间的表示，真正进行推理时再把低位空间表示还原到高维。这个思路上像是一种用时间换空间或者用算力换带宽的做法。(事实上都没有额外的算力，高低维的转换矩阵直接吸收进了attention的计算公式中)
