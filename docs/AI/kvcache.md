@@ -20,6 +20,79 @@ kv cache。cache的作用，存放计算的中间结果（避免重复计算）�
 
 在推理过程中，当前token的embedding和三个权重矩阵相乘后得到q，k，v。k和v需要拼接到上一步的K和V中，但是上一步K和V是由上一个token计算出的qkv拼接上上一个K和V构成的。理解这个过程，要缓存的东西就很清晰了，就是这个K和V矩阵（所以这个东西叫KV cache）。
 
+为什么没有Q的cache？decode过程中的其实只关心当前token的q。prefill阶段计算出之前的Q后，之前的Q就用不到了。
+
+可以实际计算一下有了kv cache之后能省多少计算量：
+
+### 有没有kv cache的区别
+
+设定 batch size 为 1，序列长度为 $s$，隐藏维度记为 $d$，且只统计 QKV 投影的计算量。一次 $(n,\ d) \times (d,\ d)$ 的矩阵乘法的浮点运算量为 $2nd^2$。
+
+推理本质上是一个自回归的"接字"过程。记第 $i$ 步的前缀长度为 $i$。
+
+**无 KV cache** 时，每生成一个 token 都要把当前全部前缀重新送入模型。第 $i$ 步中 K、V 需要对全部 $i$ 个 token 计算，而 Q 只有最后一个位置会被用到，因此该步的计算量为
+
+$$
+C_i^{\text{no-cache}} = \underbrace{2id^2}_{K} + \underbrace{2id^2}_{V} + \underbrace{2d^2}_{Q} = (4i + 2)\,d^2
+$$
+
+对 $i = 1, \dots, s$ 求和，整个序列的计算量为
+
+$$
+C^{\text{no-cache}} = \sum_{i=1}^{s} (4i + 2)\,d^2 = 2s(s+2)\,d^2
+$$
+
+**有 KV cache** 时，每步只需输入当前 1 个 token，历史 K、V 由缓存复用，故每步的计算量恒为
+
+$$
+C_i^{\text{cache}} = 3 \times 2d^2 = 6d^2
+$$
+
+整个序列的计算量为
+
+$$
+C^{\text{cache}} = \sum_{i=1}^{s} 6d^2 = 6sd^2
+$$
+
+两者之比为
+
+$$
+\frac{C^{\text{cache}}}{C^{\text{no-cache}}} = \frac{6sd^2}{2s(s+2)\,d^2} = \frac{3}{s+2} \xrightarrow{\ s \gg 1\ } \frac{3}{s}
+$$
+
+即计算量降为原来的 $3/(s+2)$，加速比约为 $(s+2)/3$。序列越长（$s$ 越大），KV cache 的优势越明显。
+
+### kv cache的显存占比估计
+
+确定一个模型、拿到一个硬件环境，来预估能跑多少并发是一个经典的场景问题。
+
+模型的权重占多少显存很好估计：fp16 下，直接参数量 $\times 2$ 字节即可。
+
+KV cache 的显存则和序列长度直接相关，一个 token 的 KV cache 大小由模型自身结构决定。设：
+
+- 隐藏层维度 $d$（MHA 下 head 数不影响，各 head 拼起来仍是 $d$）
+- decoder 层数 $L$
+- 序列长度 $s$，batch size 为 $b$
+- 每个元素占 $p$ 字节（fp16 时 $p = 2$）
+
+K、V 各存一份，则 KV cache 的显存占用为
+
+$$
+M_{\text{kv}} = \underbrace{2}_{K,\,V} \cdot d \cdot L \cdot s \cdot b \cdot p
+$$
+
+若用于 KV cache 的可用显存为 $V$，则可容纳的总 token 数为
+
+$$
+s_{\text{total}} = \frac{V}{2 \cdot d \cdot L \cdot p}
+$$
+
+生产场景中序列长度存在一个均值 $s_{\text{avg}}$，据此可估算最大并发数：
+
+$$
+\text{concurrency} = \frac{s_{\text{total}}}{s_{\text{avg}}}
+$$
+
 ## pageattention
 
 os中是对内存有一套完善的管理策略的，但是GPU上并没有有一个GPU OS来管理，其内存的分配方式是传统的开发者手动分配。手动分配的问题就复现了早期os内存管理的问题：内存碎片化。
