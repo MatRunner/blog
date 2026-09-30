@@ -93,22 +93,43 @@ $$
 \text{concurrency} = \frac{s_{\text{total}}}{s_{\text{avg}}}
 $$
 
-## pageattention
+## PagedAttention
 
 os中是对内存有一套完善的管理策略的，但是GPU上并没有有一个GPU OS来管理，其内存的分配方式是传统的开发者手动分配。手动分配的问题就复现了早期os内存管理的问题：内存碎片化。
-
 具体的，模型有固定的最大上下文，prompt+response大部分情况是填充不满上下文窗口的，但是传统的显存分配方式必然还是要按照max window来申请，就导致了大部分的显存是空置的。
 
 浪费的显存会导致很多问题：可并发的请求数减小。
 
-pageattention借鉴的是os的虚拟内存管理的方式，开发者申请内存是连续的虚拟内存地址，但是页表映射后，内存页是分散在物理内存中的，可以有效避免内存碎片化的问题。
-
+PagedAttention借鉴的是os的虚拟内存管理的方式，开发者申请内存是连续的虚拟内存地址，但是页表映射后，内存页是分散在物理内存中的，可以有效避免内存碎片化的问题。
 具体的
 
-1. pageattention把显存划分成block（也就是page），每个block容纳16个token的k和v
-2. 按需分配。模型每处理16个token，才会申请新的block。不需要提前申请一大块显存
+1. pageattention把显存划分成block（也就是page），每个block容纳16个token（仅vllm）的k和v
+2. block是逻辑上连续，但是实际的物理地址不连续，同样有页表（这里应该叫块表）来记录映射关系
+3. 按需分配。模型每处理16个token，才会申请新的block。不需要提前申请一大块显存
 
-## flashattention
+### block table
+
+举例来说，如果有输入100个token（prefill阶段），那么会被分配100/16=7个block，第7个block中只存了4个token，还空余12个token的空间。
+block有自己的逻辑编号和物理编号，逻辑编号是连续的，但是物理编号大概率不连续。
+进入decode阶段，每次只需要处理一个token，会在第7个block中继续填充，将这个block填满之后才会申请下一个block。
+attention计算时，cuda kernel通过block table拿到`physical_block_number`和`physical_block_offset`就能读到历史的KV。
+
+### 意外收获
+
+使用分页机制来管理显存后，结合LLM的业务特征，反而出现了意外之喜。模型对话时，其实有着大量相同的context，既然是相同的，那么完全可以共享一份，也就是多个请求可以共享一个物理块（逻辑块还是独立的）
+
+- 共享前缀。多个请求的sys prompt相同（实际上这个场景很常见），它们的前缀kv完全相同，就可以只存一份
+- 共享的请求后续发生了fork怎么办？只读共享时，指向同一块，通过引用计数记录请求个数。如果一个请求发生了fork，在首次写入时这个block就复制出一份这个请求的private block（仍然是从经典的os中衍生）
+
+### 抢占与恢复
+
+显存的利用率最多只能逼近100%，如果实在不够用，又该如何处理？
+这时候又可以在经典知识中寻求答案了。os中如果内存不够会怎么办？会释放部分内存到swap中（如果没有设置swap，就会oom了）。
+vllm也会把部分block换到host memory中，资源充足时再换回。
+但是对于LLM这种单一的场景，还有一种办法就是重新计算KV cache。
+但是无论如何，一旦出现了”抢占”（日志中高频出现preemption相关告警），其实已经说明资源不足了，这时候应该做的是扩容。
+
+## FlashAttention
 
 pageattention解决的是显存碎片化的问题，flashattention是一种transformer的一种计算范式（就像排序中有耗时的冒泡排序，也有性能高的快排）
 
@@ -120,11 +141,11 @@ attention的计算过程：
 
 再补充一些硬件的基础知识
 
-| <font style="color:rgb(15, 17, 21);">内存类型</font> | <font style="color:rgb(15, 17, 21);">物理位置在哪里？</font> | <font style="color:rgb(15, 17, 21);">通俗叫法</font> | <font style="color:rgb(15, 17, 21);">速度</font> | <font style="color:rgb(15, 17, 21);">容量</font> | <font style="color:rgb(15, 17, 21);">在我们讨论Attention中充当什么角色？</font> |
-| --- | --- | --- | --- | --- | --- |
-| **<font style="color:rgb(15, 17, 21);">SRAM</font>** | **<font style="color:rgb(15, 17, 21);">GPU芯片（Die）内部</font>** | <font style="color:rgb(15, 17, 21);">片上缓存（L1缓存 / 共享内存）</font> | <font style="color:rgb(15, 17, 21);">极快（~20TB/s）</font> | <font style="color:rgb(15, 17, 21);">极小（约</font><font style="color:rgb(15, 17, 21);"> </font>**<font style="color:rgb(15, 17, 21);">20MB</font>**<font style="color:rgb(15, 17, 21);">）</font> | **<font style="color:rgb(15, 17, 21);">“高速工作台”</font>**<font style="color:rgb(15, 17, 21);">——每次只处理一小块数据</font> |
-| **<font style="color:rgb(15, 17, 21);">HBM</font>** | <font style="color:rgb(15, 17, 21);">GPU芯片</font>**<font style="color:rgb(15, 17, 21);">旁边</font>**<font style="color:rgb(15, 17, 21);">（封装在同一块基板上）</font> | <font style="color:rgb(15, 17, 21);">显存（VRAM）</font> | <font style="color:rgb(15, 17, 21);">较快（~2TB/s）</font> | <font style="color:rgb(15, 17, 21);">很大（如</font><font style="color:rgb(15, 17, 21);"> </font>**<font style="color:rgb(15, 17, 21);">80GB</font>**<font style="color:rgb(15, 17, 21);">）</font> | **<font style="color:rgb(15, 17, 21);">“大仓库”</font>**<font style="color:rgb(15, 17, 21);">——存储所有的模型权重和KV Cache</font> |
-| **<font style="color:rgb(15, 17, 21);">Host内存</font>** | <font style="color:rgb(15, 17, 21);">主板上的内存插槽（CPU那边）</font> | <font style="color:rgb(15, 17, 21);">系统内存（DDR）</font> | <font style="color:rgb(15, 17, 21);">慢（~50GB/s）</font> | <font style="color:rgb(15, 17, 21);">很大（如256GB）</font> | **<font style="color:rgb(15, 17, 21);">“硬盘柜”</font>**<font style="color:rgb(15, 17, 21);">——数据在CPU和GPU之间传输用</font> |
+| <font style="color:rgb(15, 17, 21);">内存类型</font>     | <font style="color:rgb(15, 17, 21);">物理位置在哪里？</font>                                                                                                              | <font style="color:rgb(15, 17, 21);">通俗叫法</font>                      | <font style="color:rgb(15, 17, 21);">速度</font>            | <font style="color:rgb(15, 17, 21);">容量</font>                                                                                                                                                    | <font style="color:rgb(15, 17, 21);">在我们讨论Attention中充当什么角色？</font>                                                    |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **<font style="color:rgb(15, 17, 21);">SRAM</font>**     | **<font style="color:rgb(15, 17, 21);">GPU芯片（Die）内部</font>**                                                                                                        | <font style="color:rgb(15, 17, 21);">片上缓存（L1缓存 / 共享内存）</font> | <font style="color:rgb(15, 17, 21);">极快（~20TB/s）</font> | <font style="color:rgb(15, 17, 21);">极小（约</font><font style="color:rgb(15, 17, 21);"> </font>**<font style="color:rgb(15, 17, 21);">20MB</font>**<font style="color:rgb(15, 17, 21);">）</font> | **<font style="color:rgb(15, 17, 21);">“高速工作台”</font>**<font style="color:rgb(15, 17, 21);">——每次只处理一小块数据</font>     |
+| **<font style="color:rgb(15, 17, 21);">HBM</font>**      | <font style="color:rgb(15, 17, 21);">GPU芯片</font>**<font style="color:rgb(15, 17, 21);">旁边</font>**<font style="color:rgb(15, 17, 21);">（封装在同一块基板上）</font> | <font style="color:rgb(15, 17, 21);">显存（VRAM）</font>                  | <font style="color:rgb(15, 17, 21);">较快（~2TB/s）</font>  | <font style="color:rgb(15, 17, 21);">很大（如</font><font style="color:rgb(15, 17, 21);"> </font>**<font style="color:rgb(15, 17, 21);">80GB</font>**<font style="color:rgb(15, 17, 21);">）</font> | **<font style="color:rgb(15, 17, 21);">“大仓库”</font>**<font style="color:rgb(15, 17, 21);">——存储所有的模型权重和KV Cache</font> |
+| **<font style="color:rgb(15, 17, 21);">Host内存</font>** | <font style="color:rgb(15, 17, 21);">主板上的内存插槽（CPU那边）</font>                                                                                                   | <font style="color:rgb(15, 17, 21);">系统内存（DDR）</font>               | <font style="color:rgb(15, 17, 21);">慢（~50GB/s）</font>   | <font style="color:rgb(15, 17, 21);">很大（如256GB）</font>                                                                                                                                         | **<font style="color:rgb(15, 17, 21);">“硬盘柜”</font>**<font style="color:rgb(15, 17, 21);">——数据在CPU和GPU之间传输用</font>     |
 
 <font style="color:rgb(15, 17, 21);">对于一个（4096，4096）的矩阵，fp32下需要64MB的显存空间了。SRAM只有20M的容量，矩阵是不能完整存在SRAM中的，而是在HBM和SRAM中持续的搬运数据来进行计算。那么传统的attention的计算过程下：</font>
 
@@ -158,6 +179,7 @@ V: 和S进行一次计算，需要存在HBM中。
 MHA（multi head attention）就是标准的多头注意力，每个头都有自己的kv cache。整体的规模在2*seq_len*d_model，随着seq_len膨胀，kv cache会线性膨胀。
 
 MQA（multi query attention），所有的Q可以共享一组K和V，如果有h个头的情况下，K和V的规模就缩减到了原来的1/h，而Q不变，KV cache的体积就减少到原来的1/h。代价是由于只保留了一组KV，语义表达上受限。这个问题其实可以稍微细究一下：
+
 - 为什么保留了Q而共享一组KV？实验表明，多组KV中，信息是有大量的冗余的。也就是可以使用一组KV来代表所有KV，代价是语义的轻度损失。而Q本身有着查询维度的含义，再进行压缩就退化成了单头注意力了。
 
 GQA（Grouped query attention）。GQA是MHA和MQA的折中方案。将h个头分为g个组，每组共享一组KV。这样，有g组KV，cache的体积缩减为原来的g/h，Q仍然不变。
