@@ -12,7 +12,7 @@ export default defineConfig({
       { text: "首页", link: "/" },
       { text: "技术研究", link: "/research/rob" },
       { text: "工作杂谈", link: "/works/spec2026-stockfish" },
-      { text: "AI", link: "/AI/llm推理时的内存占用计算" },
+      { text: "AI", link: "/AI/从零学transformer" },
     ],
 
     sidebar: {
