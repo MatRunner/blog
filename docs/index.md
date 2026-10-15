@@ -14,7 +14,7 @@ hero:
       link: /works/spec2026-stockfish
     - theme: alt
       text: AI 学习
-      link: /AI/llm推理时的内存占用计算
+      link: /AI/从零学transformer
 
 features:
   - icon: 💻

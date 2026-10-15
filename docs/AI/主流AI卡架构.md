@@ -155,9 +155,36 @@ AMD的路线是完全兼容cuda，它并没有实现自己的一套开发语言�
 
 ## 寒武纪 思元
 
-todo
+寒武纪的芯片架构叫 MLUarch，Machine Learning Unit Architecture。
+
+> 一个 MLU 设备由 Memory 子系统、MTP （Multi Tensor Processor）子系统、Media 子系统等构成。 MTP 子系统是寒武纪 MLU 架构的核心。
+
+指南中对比了MLU和NVIDIA GPU的术语：
+
+| MLU                   | GPU                              | 描述                                                                                 |
+| --------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
+| L2 Cache              | L2 Cache                         | MLU上或称为LLC（Last Level Cache），L2 Cache为Device级多Cluster共享                  |
+| Cambricon BANG Kernel | Kernel                           | 一个Host端发射到Device上并行执行的函数，GPU/MLU和CPU的函数执行是并行独立的           |
+| Global-DRAM           | Global Memory                    | 指片外DDR或HBM内存，多Task或Thread共享的地址空间                                     |
+| Local-DRAM            | Local Memory（或Private Memory） | 指片外或映射到Cache上的高速私有内存，并行编程中的空间作用域是Task/Thread内私有的局部 |
+
+MTP 架构中，MTP Cluster 是由多个 IPU Core 和 一块共享 SRAM （或称为Shared-RAM）组成，是 MTP 架构中的最小执行单元。 当 TP 架构的架构编号和 MTP 架构的编号相同时，MTP 架构的硬件可以二进制兼容地执行 TP 架构开发和编译的程序。
+
+MTP 可以类比 GPU 的一个 GPC （GPU Processing Cluster）或 SE （Shader Engine），从 Cluster 级架构对比和 GPU 的术语见下表:
+
+| MLU | GPU | 描述 |
+| --- | --- | --- |
+| 无 | L1 Cache | GPU的L1 Cache是SM或SE内共享，SM的L1 DCache和SharedMemory在GPU架构共享并可调大小，SE内的L1 Cache在GPU架构中可以多CU共享，MTP内的Shared-RAM具备多IPU共享L1 DCache的作用 |
+| MTP（多TP并行） | GPC/SE（多SM/CU并行） | N/A |
+| Shared-RAM | Shared Memory（或Local Data Share） | Cluster内作为多Task/Thread共享的存储层次，在并行编程的通讯和归约时可极大避免片外访存延迟，充分利用片上带宽和数据局部性降低功耗 |
+| Union Task | Thread Block（或Workgroup） | 软件联合多个独立线程的概念，多个Task/Thread在Kernel中同时执行，并行的Task/Thread之间可以同步通讯 |
+
+MLUv03的MTP由 4 个 IPU 和 1 个 MPU 组成。不同 MTP 型号的 SRAM 存储大小不一样。参考图：
+
+![mlu_v03_mtp](../img/MLUv03.png)
 
 ## 参考
 
 1. <https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html#gpu-hardware-model>
 2. <https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/opdevg/Ascendcopdevg/atlas_ascendc_10_0008.html>
+3. [寒武纪MLU架构调优指南](https://www.cambricon.com/docs/sdk_1.13.0/cntoolkit_3.5.2/cntoolkit_tuning_0.4.1/chapter1_mlu_architecture/index.html)

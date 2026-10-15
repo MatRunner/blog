@@ -6,13 +6,14 @@ export default defineConfig({
   markdown: {
     math: true,
   },
+  srcExclude: ["**/drafts/**"],
   head: [["link", { rel: "icon", href: "/fav.png" }]],
   themeConfig: {
     nav: [
       { text: "首页", link: "/" },
       { text: "技术研究", link: "/research/rob" },
       { text: "工作杂谈", link: "/works/spec2026-stockfish" },
-      { text: "AI", link: "/AI/llm推理时的内存占用计算" },
+      { text: "AI", link: "/AI/从零学transformer" },
     ],
 
     sidebar: {
@@ -23,6 +24,7 @@ export default defineConfig({
             { text: "从零学 Transformer", link: "/AI/从零学transformer" },
             { text: "再战transformer", link: "/AI/再战transformer" },
             { text: "KV cache及相关优化技术理解", link: "/AI/kvcache" },
+            { text: "从零学习模型量化", link: "/AI/从零学习模型量化" },
             { text: "pytorch实现transformer", link: "/AI/pytorch实现transformer" },
             { text: "GPU中的bank conflict", link: "/AI/GPU_bank_conflict" },
             { text: "主流AI卡架构", link: "/AI/主流AI卡架构" },
