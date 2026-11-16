@@ -6,6 +6,7 @@ export default defineConfig({
   markdown: {
     math: true,
   },
+  srcExclude: ["**/drafts/**"],
   head: [["link", { rel: "icon", href: "/fav.png" }]],
   themeConfig: {
     nav: [
@@ -23,6 +24,7 @@ export default defineConfig({
             { text: "从零学 Transformer", link: "/AI/从零学transformer" },
             { text: "再战transformer", link: "/AI/再战transformer" },
             { text: "KV cache及相关优化技术理解", link: "/AI/kvcache" },
+            { text: "从零学习模型量化", link: "/AI/从零学习模型量化" },
             { text: "pytorch实现transformer", link: "/AI/pytorch实现transformer" },
             { text: "GPU中的bank conflict", link: "/AI/GPU_bank_conflict" },
             { text: "主流AI卡架构", link: "/AI/主流AI卡架构" },
@@ -64,6 +66,10 @@ export default defineConfig({
               text: "如何根据有限材料还原workload？",
               link: "/works/workload-rebuild",
             },
+            {
+              text: "40G 显存跑 104 GiB MoE：单机单卡的本地推理部署与调优",
+              link: "/works/单卡llama-bench测试",
+            }
           ],
         },
       ],
