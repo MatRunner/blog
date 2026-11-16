@@ -66,6 +66,10 @@ export default defineConfig({
               text: "如何根据有限材料还原workload？",
               link: "/works/workload-rebuild",
             },
+            {
+              text: "40G 显存跑 104 GiB MoE：单机单卡的本地推理部署与调优",
+              link: "/works/单卡llama-bench测试",
+            }
           ],
         },
       ],
