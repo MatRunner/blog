@@ -59,8 +59,8 @@ export default defineConfig({
               link: "/works/ASLR开启导致openfoam的性能波动问题",
             },
             {
-              text: "ALSR 开启导致 RapidJSON 性能波动问题",
-              link: "/works/ALSR开启导致rapidjson性能波动问题",
+              text: "ASLR 开启导致 RapidJSON 性能波动问题",
+              link: "/works/ASLR开启导致rapidjson性能波动问题",
             },
             {
               text: "如何根据有限材料还原workload？",
